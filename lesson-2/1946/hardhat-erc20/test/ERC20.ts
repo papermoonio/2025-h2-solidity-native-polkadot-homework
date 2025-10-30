@@ -9,11 +9,12 @@ describe("ERC20", function () {
 
   beforeEach(async function () {
     [owner] = await ethers.getSigners();
-    addr1 = await ethers.Wallet.createRandom();
-    addr2 = await ethers.Wallet.createRandom();
-    addr3 = await ethers.Wallet.createRandom();
+    // 修正：为随机钱包连接 provider
+    addr1 = await ethers.Wallet.createRandom().connect(ethers.provider);
+    addr2 = await ethers.Wallet.createRandom().connect(ethers.provider);
+    addr3 = await ethers.Wallet.createRandom().connect(ethers.provider);
 
-    const ethAmount = ethers.parseEther("1.0");
+    const ethAmount = ethers.parseEther("1000000");
     await owner.sendTransaction({
       to: addr1.address,
       value: ethAmount,
