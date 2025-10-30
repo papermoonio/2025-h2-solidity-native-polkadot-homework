@@ -1,0 +1,11 @@
+# Ignore polkadot-sdk as it's a large dependency
+polkadot-sdk/
+
+# Ignore node_modules
+node_modules/
+
+# Ignore build artifacts
+artifacts/
+cache/
+dist/
+types/
