@@ -1,0 +1,13 @@
+{
+  "name": "erc20-contract",
+  "version": "1.0.0",
+  "description": "ERC20 token implementation with Hardhat",
+  "scripts": {
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  }
+}
