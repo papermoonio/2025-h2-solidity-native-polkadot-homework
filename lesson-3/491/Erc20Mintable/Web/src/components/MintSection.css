@@ -1,0 +1,93 @@
+.mint-section {
+  min-height: 300px;
+}
+
+.mint-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mint-status {
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.status-ready {
+  background: #d4edda;
+  color: #155724;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.status-waiting {
+  background: #fff3cd;
+  color: #856404;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.status-icon {
+  font-size: 1.5rem;
+}
+
+.mint-button {
+  padding: 16px 32px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mint-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mint-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mint-message {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.mint-message.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mint-message.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.mint-info {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.mint-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+

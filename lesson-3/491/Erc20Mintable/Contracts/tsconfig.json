@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "lib": ["es2023"],
+    "target": "es2022",
+    "esModuleInterop": true,
+    "outDir": "dist"
+  },
+  "include": ["hardhat.config.ts", "scripts/**/*", "test/**/*", "ignition/**/*"]
+}
+

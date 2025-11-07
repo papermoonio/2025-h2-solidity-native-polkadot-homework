@@ -1,11 +1,10 @@
 import type { HardhatUserConfig } from "hardhat/config";
-
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { configVariable } from "hardhat/config";
-import hardhatViemPlugin from "@nomicfoundation/hardhat-viem";
+
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxMochaEthersPlugin, hardhatViemPlugin],
+  plugins: [hardhatToolboxMochaEthersPlugin],
   solidity: {
     profiles: {
       default: {
@@ -31,18 +30,18 @@ const config: HardhatUserConfig = {
       type: "edr-simulated",
       chainType: "op",
     },
+    localhost: {
+      type: "http",
+      chainType: "l1",
+      url: "http://127.0.0.1:8545",
+      chainId: 420420420,
+      accounts: [configVariable("LOCALHOST_PRIVATE_KEY")],
+    },
     sepolia: {
       type: "http",
       chainType: "l1",
       url: configVariable("SEPOLIA_RPC_URL"),
       accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
-    },
-    localhost: {
-      chainId: 420420420,
-      type: "http",
-      chainType: "l1",
-      url: "http://localhost:8545",
-      accounts: [configVariable("LOCALHOST_PRIVATE_KEY")],
     },
   },
 };
