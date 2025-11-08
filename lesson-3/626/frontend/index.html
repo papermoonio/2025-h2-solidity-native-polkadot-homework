@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MintableERC20 Demo</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin: 24px; }
+      .row { margin: 12px 0; }
+      input { padding: 8px; }
+      button { padding: 8px 12px; margin-right: 8px; }
+      code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; }
+      .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-top: 16px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.12.1/dist/ethers.umd.min.js"></script>
+  </head>
+  <body>
+    <h1>MintableERC20 前端演示</h1>
+
+    <div class="row">
+      <button id="connect">连接钱包</button>
+      <span id="account"></span>
+    </div>
+
+    <div class="card">
+      <div class="row">合约地址：<code id="addr">加载中…</code></div>
+      <div class="row">Token：<span id="token">加载中…</span></div>
+      <div class="row">
+        <input id="amount" type="number" min="0" step="0.000000000000000001" placeholder="输入铸造数量（18位精度）" />
+        <button id="mintSelf">铸造到自己</button>
+        <button id="refresh">刷新余额</button>
+      </div>
+      <div class="row">余额：<code id="balance">-</code></div>
+      <div class="row">总供应量：<code id="totalSupply">-</code></div>
+      <div class="row" id="status"></div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
