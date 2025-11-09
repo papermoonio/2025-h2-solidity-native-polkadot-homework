@@ -1,0 +1,117 @@
+.mint-history {
+  min-height: 300px;
+}
+
+.history-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.last-mint-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.last-mint-info .label {
+  font-weight: 600;
+  color: #666;
+}
+
+.last-mint-info .value {
+  font-weight: 700;
+  color: #333;
+  font-family: monospace;
+}
+
+.no-records {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-records .hint {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  color: #999;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.record-item {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #28a745;
+  transition: all 0.3s ease;
+}
+
+.record-item:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.record-amount {
+  font-weight: 700;
+  color: #28a745;
+  font-size: 1.1rem;
+}
+
+.record-date {
+  font-size: 0.9rem;
+  color: #666;
+  font-family: monospace;
+}
+
+.record-details {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85rem;
+  color: #999;
+  font-family: monospace;
+}
+
+.record-tx,
+.record-block {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Scrollbar styling */
+.records-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.records-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.records-list::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 4px;
+}
+
+.records-list::-webkit-scrollbar-thumb:hover {
+  background: #5568d3;
+}
+
