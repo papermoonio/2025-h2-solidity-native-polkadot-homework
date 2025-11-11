@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@parity/hardhat-polkadot": "^0.2.0-pre5"
+  }
+}
