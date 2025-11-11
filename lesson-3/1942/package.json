@@ -1,0 +1,42 @@
+{
+  "name": "lesson-3-1942-mintable-erc20",
+  "version": "1.0.0",
+  "private": true,
+  "description": "End-to-end Mintable ERC20 implementation (Hardhat + TypeScript)",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf artifacts cache typechain",
+    "build": "hardhat compile",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "lint": "echo \"No linter configured\"",
+    "deploy": "hardhat run scripts/deploy.ts",
+    "deploy:network": "hardhat run scripts/deploy.ts --network",
+    "mint": "hardhat run scripts/mint.ts",
+    "transfer": "hardhat run scripts/transfer.ts",
+    "typechain": "hardhat typechain"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
+    "@nomicfoundation/hardhat-ethers": "^3.0.6",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.0.0",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "chai": "^4.4.1",
+    "ethers": "^6.13.2",
+    "hardhat": "^2.22.12",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.6.3",
+    "rimraf": "^6.0.1"
+  }
+}
+
+
