@@ -1,10 +1,9 @@
 import { expect } from "chai";
 import hre from "hardhat";
-import { Library, Caller, Library__factory, Caller__factory } from "../typechain-types";
 
 describe("Call vs DelegateCall", function () {
-    let library: Library;
-    let caller: Caller;
+    let library: any;
+    let caller: any;
     let libraryAddress: string;
 
     beforeEach(async function () {
@@ -15,14 +14,14 @@ describe("Call vs DelegateCall", function () {
         const libraryDeployment = await LibraryFactory.deploy();
         await libraryDeployment.waitForDeployment();
         libraryAddress = await libraryDeployment.getAddress();
-        library = Library__factory.connect(libraryAddress, signer);
+        library = libraryDeployment;
 
         // Deploy Caller contract with Library address
         const CallerFactory = await hre.ethers.getContractFactory("Caller");
         const callerDeployment = await CallerFactory.deploy(libraryAddress);
         await callerDeployment.waitForDeployment();
         const callerAddress = await callerDeployment.getAddress();
-        caller = Caller__factory.connect(callerAddress, signer);
+        caller = callerDeployment;
     });
 
     describe("Initial State", function () {
@@ -189,4 +188,3 @@ describe("Call vs DelegateCall", function () {
         });
     });
 });
-
