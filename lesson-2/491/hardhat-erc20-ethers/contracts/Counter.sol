@@ -7,7 +7,7 @@ contract Counter {
   event Increment(uint by);
 
   function inc() public {
-    x++;
+    x = x++;
     emit Increment(1);
   }
 
