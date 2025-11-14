@@ -1,8 +1,11 @@
-import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
+import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
+import ethersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
+
 import { configVariable, defineConfig } from "hardhat/config";
 
 export default defineConfig({
-  plugins: [hardhatToolboxMochaEthersPlugin],
+  // plugins: [hardhatToolboxViemPlugin, ethersPlugin],
+  plugins: [ethersPlugin],
   solidity: {
     profiles: {
       default: {
@@ -28,13 +31,23 @@ export default defineConfig({
       type: "edr-simulated",
       chainType: "op",
     },
+
     localhost: {
-      chainId: 420420420,
       type: "http",
       chainType: "l1",
       url: "http://127.0.0.1:8545",
       accounts: [configVariable("LOCALHOST_PRIVATE_KEY")],
+      chainId: 420420420,
+      ignition: {
+        maxFeePerGasLimit: 50_000_000_000n, // 50 gwei
+        //maxFeePerGas: 20_000_000_000n, // 20 gwei
+        maxPriorityFeePerGas: 2_000_000_000n, // 2 gwei
+        gasPrice: 50_000_000_000n, // 50 gwei
+        disableFeeBumping: false,
+        //explorerUrl: "https://sepolia.etherscan.io",
+      },
     },
+
     sepolia: {
       type: "http",
       chainType: "l1",

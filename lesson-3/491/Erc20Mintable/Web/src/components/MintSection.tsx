@@ -20,10 +20,13 @@ export function MintSection({ contract, account }: MintSectionProps) {
   useEffect(() => {
     if (contract && account) {
       checkMintStatus()
+      let retryCount = 0;
       const interval = setInterval(() => {
         checkMintStatus()
+        if (retryCount++ > 1) {
+          clearInterval(interval)
+        }
       }, 1000) // Update every second
-
       return () => clearInterval(interval)
     }
   }, [contract, account])

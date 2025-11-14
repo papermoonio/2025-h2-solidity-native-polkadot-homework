@@ -7,13 +7,13 @@ contract MintableERC20 is ERC20 {
     // Variables
     mapping(address => uint) public lastMintTime;
     uint256 public interval;
-    address public owner;
+    address private owner;
 
     constructor(
         string memory _name,
         string memory _symbol
     ) ERC20(_name, _symbol) {
-        _mint(msg.sender, 100000000000000000000000);
+        _mint(msg.sender, 10 ** 18);
 
         owner = msg.sender;
         interval = 3600;
@@ -25,7 +25,7 @@ contract MintableERC20 is ERC20 {
                 block.timestamp > lastMintTime[msg.sender] + interval,
             "You need to wait an hour between mints"
         );
-        _mint(msg.sender, 100000000000000000000);
+        _mint(msg.sender, 10 ** 18);
         lastMintTime[msg.sender] = block.timestamp;
     }
 

@@ -10,13 +10,17 @@ import * as Contracts from "./index.js";
 
 declare module "@nomicfoundation/hardhat-ethers/types" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
-  getContractFactory(name: 'MintableERC20', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MintableERC20__factory>
+  getContractFactory(name: 'Counter', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.Counter__factory>
+getContractFactory(name: 'MintableERC20', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.MintableERC20__factory>
 
-  getContractAt(name: 'MintableERC20', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MintableERC20>
+  getContractAt(name: 'Counter', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.Counter>
+getContractAt(name: 'MintableERC20', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.MintableERC20>
 
-  deployContract(name: 'MintableERC20', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MintableERC20>
+  deployContract(name: 'Counter', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Counter>
+deployContract(name: 'MintableERC20', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MintableERC20>
 
-  deployContract(name: 'MintableERC20', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MintableERC20>
+  deployContract(name: 'Counter', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Counter>
+deployContract(name: 'MintableERC20', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.MintableERC20>
 
     // default types
     getContractFactory(

@@ -7,14 +7,28 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Contracts",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${file}",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
+            ],
+            "runtimeExecutable": "npx",
+            "runtimeArgs": [
+                "tsx"
             ]
+        },
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/Web/src",
+            "sourceMaps": true,
+            "trace": true,
+            "userDataDir": "E:/dev/Chrome-debug"
         }
     ]
 }
