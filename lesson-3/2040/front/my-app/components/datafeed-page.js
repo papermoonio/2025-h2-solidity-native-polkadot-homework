@@ -40,7 +40,7 @@ const DataFeed = ({ account }) => {
         if (code === '0x') {
           throw new Error("No contract found at this address. Make sure the contract is deployed.");
         }
-        
+
         name = await contractInstance.name();
         symbol = await contractInstance.symbol();
         dec = await contractInstance.decimals();
@@ -54,12 +54,13 @@ const DataFeed = ({ account }) => {
       // Then get user-specific info
       let mint, interval, lastMint, balance;
       try {
-        [mint, interval, lastMint, balance] = await Promise.all([
+        const results = await Promise.all([
           contractInstance.canMint(account),
           contractInstance.interval(),
           contractInstance.lastMintTime(account),
           contractInstance.balanceOf(account),
         ]);
+        [mint, interval, lastMint, balance] = results;
       } catch (error) {
         console.error("Error getting user-specific token info:", error);
         throw new Error(`Unable to fetch user-specific token information. ${error.message}`);
@@ -180,10 +181,11 @@ const DataFeed = ({ account }) => {
         throw new Error("Failed to create contract instance");
       }
       
-      const [dec, symbol] = await Promise.all([
+      const results = await Promise.all([
         contractInstance.decimals(),
         contractInstance.symbol(),
       ]);
+      const [dec, symbol] = results;
 
       await window.ethereum.request({
         method: "wallet_watchAsset",
