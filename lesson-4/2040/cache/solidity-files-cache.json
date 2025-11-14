@@ -1,0 +1,75 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\11236\\Documents\\vscode_project\\2025-h2-solidity-native-polkadot-homework\\lesson-4\\2040\\contracts\\LogicContract.sol": {
+      "lastModificationDate": 1763092940409,
+      "contentHash": "39580bac0f5fb19ba5fba86f58f01582",
+      "sourceName": "contracts/LogicContract.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "LogicContract"
+      ]
+    },
+    "C:\\Users\\11236\\Documents\\vscode_project\\2025-h2-solidity-native-polkadot-homework\\lesson-4\\2040\\contracts\\ProxyContract.sol": {
+      "lastModificationDate": 1763098338302,
+      "contentHash": "4a89269f83a26093679568fb628eb95c",
+      "sourceName": "contracts/ProxyContract.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ProxyContract"
+      ]
+    }
+  }
+}
