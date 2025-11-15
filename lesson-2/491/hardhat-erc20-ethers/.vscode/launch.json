@@ -14,7 +14,8 @@
             "program": "${file}",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
-            ]
+            ],
+            "runtimeExecutable": "/home/lucas/.nvm/versions/node/v24.11.0/bin/node"
         }
     ]
 }

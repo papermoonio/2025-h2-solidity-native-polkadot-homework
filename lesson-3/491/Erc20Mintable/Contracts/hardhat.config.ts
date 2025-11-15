@@ -1,9 +1,7 @@
-import type { HardhatUserConfig } from "hardhat/config";
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
-import { configVariable } from "hardhat/config";
+import { configVariable, defineConfig } from "hardhat/config";
 
-
-const config: HardhatUserConfig = {
+export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
   solidity: {
     profiles: {
@@ -31,10 +29,10 @@ const config: HardhatUserConfig = {
       chainType: "op",
     },
     localhost: {
+      chainId: 420420420,
       type: "http",
       chainType: "l1",
       url: "http://127.0.0.1:8545",
-      chainId: 420420420,
       accounts: [configVariable("LOCALHOST_PRIVATE_KEY")],
     },
     sepolia: {
@@ -44,6 +42,4 @@ const config: HardhatUserConfig = {
       accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
     },
   },
-};
-
-export default config;
+});

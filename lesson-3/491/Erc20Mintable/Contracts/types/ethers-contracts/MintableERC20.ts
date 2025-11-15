@@ -6,7 +6,7 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface MintableERC20Interface extends Interface {
-    getFunction(nameOrSignature: "allowance" | "approve" | "balanceOf" | "canMint" | "decimals" | "interval" | "lastMintTime" | "mintToken" | "name" | "owner" | "ownerMint" | "setInterval" | "symbol" | "totalSupply" | "transfer" | "transferFrom"): FunctionFragment;
+    getFunction(nameOrSignature: "allowance" | "approve" | "balanceOf" | "canMint" | "decimals" | "interval" | "lastMintTime" | "mintToken" | "name" | "ownerMint" | "setInterval" | "symbol" | "totalSupply" | "transfer" | "transferFrom"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "Approval" | "Transfer"): EventFragment;
 
@@ -19,7 +19,6 @@ encodeFunctionData(functionFragment: 'interval', values?: undefined): string;
 encodeFunctionData(functionFragment: 'lastMintTime', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'mintToken', values?: undefined): string;
 encodeFunctionData(functionFragment: 'name', values?: undefined): string;
-encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'ownerMint', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'setInterval', values: [BigNumberish]): string;
 encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
@@ -36,7 +35,6 @@ decodeFunctionResult(functionFragment: 'interval', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'lastMintTime', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'mintToken', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'ownerMint', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'setInterval', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
@@ -176,14 +174,6 @@ decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
     
 
     
-    owner: TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >
-    
-
-    
     ownerMint: TypedContractMethod<
       [_target: AddressLike, _amount: BigNumberish, ],
       [void],
@@ -275,11 +265,6 @@ getFunction(nameOrSignature: 'mintToken'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'name'): TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >;
-getFunction(nameOrSignature: 'owner'): TypedContractMethod<
       [],
       [string],
       'view'
