@@ -1,0 +1,14 @@
+No files changed, compilation skipped
+
+Ran 3 tests for test/ProxyUpgradeTest.t.sol:ProxyUpgradeTest
+[PASS] test_admin_change_and_protection() (gas: 186490)
+[PASS] test_initial_delegatecall_behavior() (gas: 41583)
+[PASS] test_upgrade_to_v2_and_persist_state() (gas: 211844)
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 7.59ms (4.39ms CPU time)
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+[PASS] testFuzz_SetNumber(uint256) (runs: 256, μ: 29289, ~: 29289)
+[PASS] test_Increment() (gas: 28783)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 17.28ms (12.20ms CPU time)
+
+Ran 2 test suites in 460.65ms (24.87ms CPU time): 5 tests passed, 0 failed, 0 skipped (5 total tests)
