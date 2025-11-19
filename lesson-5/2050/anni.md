@@ -1,8 +1,8 @@
 # Homework 5 - Uniswap V2 Polkadot 作业报告
 
-**学生姓名**: [你的姓名]  
+**学生姓名**: [anni]  
 **提交日期**: 2025-11-19  
-**GitHub 仓库**: [你的仓库链接]
+**学号**: [2050]
 
 ---
 
@@ -282,65 +282,11 @@ const amountOut = numerator / denominator;
 - `hardhat.config.js` - 修复后的配置文件
 - `test/UniswapV2Pair.extended.js` - 新增的 10 个测试用例
 - 所有原始合约和测试文件
+增加前：
 
-### 文档
-- `README.md` - 项目概述和测试结果
-- `anni.md` - 本作业报告（完整版）
+<img width="855" height="565" alt="image" src="https://github.com/user-attachments/assets/074c4ffa-aeb5-4121-8252-b458b4e7b800" />
 
----
+增加后：
+<img width="862" height="790" alt="image" src="https://github.com/user-attachments/assets/a2d21603-306e-477a-9c2e-9d649658c6d1" />
 
-## 🚀 GitHub 仓库
 
-**仓库地址**: [填写你的 GitHub 仓库链接]
-
-### 提交步骤
-
-```bash
-cd ~/uniswap-v2-polkadot
-git init
-git add .
-git commit -m "完成 Homework 5: Uniswap V2 Polkadot 测试
-
-✅ 38/38 测试通过
-🔧 修复 8 个 bug
-➕ 新增 10 个测试用例"
-
-git remote add origin [你的仓库地址]
-git branch -M main
-git push -u origin main
-```
-
----
-
-## 📊 作业评分自评
-
-| 评分项 | 满分 | 自评 | 说明 |
-|--------|------|------|------|
-| 代码运行 | 20 | 20 | 所有测试通过 |
-| 测试通过 | 20 | 20 | 38/38 通过 |
-| README 结果 | 10 | 10 | 详细记录 |
-| 问题分析 | 10 | 10 | 8 个问题详细分析 |
-| 新增测试 | 15 | 15 | 10 个高质量测试 |
-| 解决 bug | 15 | 15 | 修复 8 个 bug |
-| 文档完善 | 10 | 10 | 完整文档体系 |
-| **总分** | **100** | **100** | ✅ |
-
----
-
-## 🎉 总结
-
-本次作业成功完成了所有基础要求和加分项：
-
-- ✅ 所有 38 个测试通过（28 原始 + 10 扩展）
-- ✅ 修复了 8 个关键 bug
-- ✅ 新增了 10 个高质量测试用例
-- ✅ 深入理解了 Uniswap V2 的 AMM 机制
-- ✅ 掌握了 Polkadot 智能合约开发
-- ✅ 提升了测试工程和问题解决能力
-
-**预期得分: 100%+** 🎉
-
----
-
-**报告完成日期**: 2025-11-19  
-**作业状态**: ✅ 已完成，可以提交
