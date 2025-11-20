@@ -19,12 +19,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "24"
+          
+      - name: Install zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
 
-      - name: zsh Action
-        uses: gbraad-actions/zsh-action@v2
-        with:          
-          run: cd lessons-5/491/uniswap-v2-polkadot && ./scripts/start-revive-rpc.sh
-
+      - name: Run script with zsh
+        working-directory: lessons-5/491/uniswap-v2-polkadot
+        run: zsh ./scripts/start-revive-rpc.sh
+        
       - name: Install dependencies
         run: npm install
         
