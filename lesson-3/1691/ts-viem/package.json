@@ -1,0 +1,21 @@
+{
+  "name": "ts-viem",
+  "version": "1.0.0",
+  "description": "Create a new project (ethers.js + typescript)\r ```\r npm init -y\r npm install viem\r npm install --save-dev typescript\r npm install --save-dev ts-node @types/node\r npx tsc --init\r ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "viem": "^2.38.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

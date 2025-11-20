@@ -1,0 +1,113 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "D:\\work\\learn\\2025-h2-solidity-native-polkadot-homework\\lesson-2\\1281\\contracts\\MyERC20.sol": {
+      "lastModificationDate": 1761961501147,
+      "contentHash": "596ffcfa4cff1af27683e3e9453b0314",
+      "sourceName": "contracts/MyERC20.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "MyERC20"
+      ]
+    },
+    "D:\\work\\learn\\2025-h2-solidity-native-polkadot-homework\\lesson-4\\1281\\contracts\\Logic.sol": {
+      "lastModificationDate": 1763081634189,
+      "contentHash": "191721a2fe98ac9bc5c32cde6f4138ad",
+      "sourceName": "contracts/Logic.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Logic"
+      ]
+    },
+    "D:\\work\\learn\\2025-h2-solidity-native-polkadot-homework\\lesson-4\\1281\\contracts\\Proxy.sol": {
+      "lastModificationDate": 1763081632161,
+      "contentHash": "5211e11a99d4c4e5952f6cad256e606c",
+      "sourceName": "contracts/Proxy.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Proxy"
+      ]
+    }
+  }
+}
