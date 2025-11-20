@@ -1,16 +1,14 @@
-const hre = require("hardhat");
-
+import hre from "hardhat";
 /**
  * 🚀 部署脚本：演示 delegatecall 代理模式
  */
 async function main() {
   console.log("🎯 开始部署 DelegateCall 演示合约...\n");
-
-  // 获取部署账户
+  // 获取部署账户（Hardhat标准方式）
   const [deployer] = await hre.ethers.getSigners();
   console.log("📝 部署账户:", deployer.address);
-  console.log("💰 账户余额:", hre.ethers.formatEther(await hre.ethers.provider.getBalance(deployer.address)), "ETH\n");
-
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log("💰 账户余额:", hre.ethers.formatEther(balance), "ETH\n");
   // 1️⃣ 部署逻辑合约
   console.log("1️⃣ 部署逻辑合约 (SimpleCounter)...");
   const LogicFactory = await hre.ethers.getContractFactory("SimpleCounter");
