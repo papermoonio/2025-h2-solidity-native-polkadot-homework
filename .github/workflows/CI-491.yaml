@@ -33,7 +33,10 @@ jobs:
         run: zsh ./scripts/start-revive-rpc.sh
         
       - name: Install dependencies
-        run: npm install
+        working-directory: lesson-5/491/uniswap-v2-polkadot/
+        run: |
+          npm install
+          npm install dockerode
         
       - name: Test
         run: npm test
