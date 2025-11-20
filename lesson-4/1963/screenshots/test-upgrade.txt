@@ -1,0 +1,45 @@
+No files changed, compilation skipped
+
+Ran 1 test for test/ProxyUpgradeTest.t.sol:ProxyUpgradeTest
+[PASS] test_upgrade_to_v2_and_persist_state() (gas: 211844)
+Traces:
+  [211844] ProxyUpgradeTest::test_upgrade_to_v2_and_persist_state()
+    ├─ [27497] ERC1967Proxy::fallback()
+    │   ├─ [22453] LogicV1::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [1097] ERC1967Proxy::fallback()
+    │   ├─ [553] LogicV1::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [470] ERC1967Proxy::getCounter() [staticcall]
+    │   └─ ← [Return] 2
+    ├─ [96139] → new LogicV2@0xF62849F9A0B5Bf2913b396098F7c7019b51A820a
+    │   └─ ← [Return] 480 bytes of code
+    ├─ [0] VM::prank(0x000000000000000000000000000000000000dEaD)
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  
+only-admin)
+    │   └─ ← [Return]
+    ├─ [2894] ERC1967Proxy::upgradeTo(LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Revert] only-admin
+    ├─ [0] VM::prank(ProxyUpgradeTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [6759] ERC1967Proxy::upgradeTo(LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   ├─ emit Upgraded(implementation: LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Stop]
+    ├─ [531] ERC1967Proxy::implementation() [staticcall]
+    │   └─ ← [Return] LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a]
+    ├─ [1097] ERC1967Proxy::fallback()
+    │   ├─ [553] LogicV2::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [470] ERC1967Proxy::getCounter() [staticcall]
+    │   └─ ← [Return] 7
+    ├─ [2402] LogicV2::counter() [staticcall]
+    │   └─ ← [Return] 0
+    └─ ← [Stop]
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 672.09µs (221.81µs CPU time)
+
+Ran 1 test suite in 394.44ms (672.09µs CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)

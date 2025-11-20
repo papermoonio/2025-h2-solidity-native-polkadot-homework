@@ -1,0 +1,22 @@
+{
+  "name": "js-sdk",
+  "version": "1.0.0",
+  "description": "https://docs.ethers.org/v6/",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "viem": "^2.23.11",
+    "ethers": "^6.13.5",
+    "dotenv": "16.4.7"
+  }
+}

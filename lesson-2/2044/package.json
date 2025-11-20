@@ -1,0 +1,19 @@
+{
+  "name": "erc20-hardhat",
+  "version": "1.0.0",
+  "description": "ERC20 token implementation using Hardhat",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "node": "hardhat node"
+  },
+  "keywords": ["erc20", "hardhat", "solidity"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0"
+  }
+}
+
