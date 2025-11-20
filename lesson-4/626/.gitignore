@@ -1,0 +1,6 @@
+# Hardhat artifacts
+/artifacts
+/cache
+node_modules
+.env
+.DS_Store
