@@ -11,3 +11,43 @@ npx hardhat test
 npx hardhat node
 npx hardhat node && npx hardhat ignition deploy ./ignition/modules/MyToken.js --network localhost
 ```
+npx hardhat test  --network localNode
+
+
+
+  UniswapV2ERC20
+    ✔ name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR, PERMIT_TYPEHASH
+    ✔ approve
+    ✔ transfer
+    ✔ transfer:fail
+    ✔ transferFrom
+    ✔ transferFrom:max
+
+  UniswapV2Factory
+    ✔ feeTo, feeToSetter, allPairsLength
+    ✔ createPair
+    ✔ createPair:reverse
+    ✔ setFeeTo
+    ✔ setFeeToSetter
+
+  UniswapV2Pair
+    ✔ mint (44ms)
+    ✔ getInputPrice:0 (47ms)
+    ✔ getInputPrice:1 (38ms)
+    ✔ getInputPrice:2 (45ms)
+    ✔ getInputPrice:3 (41ms)
+    ✔ getInputPrice:4 (43ms)
+    ✔ getInputPrice:5 (40ms)
+    ✔ getInputPrice:6 (38ms)
+    ✔ optimistic:0
+    ✔ optimistic:1
+    ✔ optimistic:2
+    ✔ optimistic:3
+    ✔ swap:token0 (48ms)
+    ✔ swap:token1 (38ms)
+    ✔ burn (52ms)
+    ✔ feeTo:off (50ms)
+    ✔ feeTo:on (56ms)
+
+
+  28 passing (3s)
