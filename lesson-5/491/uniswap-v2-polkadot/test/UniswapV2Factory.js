@@ -66,7 +66,7 @@ let factory;
     expect(await factory.allPairsLength()).to.eq(0);
   });
 
-  async function createPair(tokens) {
+  async function createPair(tokens, pairsCount = 1) {
     const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
     const bytecode = UniswapV2Pair.bytecode;
     const initCodeHash = keccak256(bytecode);
@@ -76,19 +76,19 @@ let factory;
     const create2Address = getCreate2Address(await factory.getAddress(), salt, initCodeHash);
 
     await expect(factory.createPair(tokens[0], tokens[1])).to.emit(factory, "PairCreated")
-    .withArgs(TEST_ADDRESSES[0], TEST_ADDRESSES[1], create2Address, 1n);
+    .withArgs(token0, token1, create2Address, pairsCount);
 
     await expect(factory.createPair(...tokens)).to.be.reverted; // UniswapV2: PAIR_EXISTS
     await expect(factory.createPair(...tokens.slice().reverse())).to.be.reverted; // UniswapV2: PAIR_EXISTS
     expect(await factory.getPair(...tokens)).to.eq(create2Address);
     expect(await factory.getPair(...tokens.slice().reverse())).to.eq(create2Address);
-    expect(await factory.allPairs(0)).to.eq(create2Address);
-    expect(await factory.allPairsLength()).to.eq(1);
+    expect(await factory.allPairs(pairsCount - 1)).to.eq(create2Address);
+    expect(await factory.allPairsLength()).to.eq(pairsCount);
 
     const pair = await ethers.getContractAt("UniswapV2Pair", create2Address); 
     expect(await pair.factory()).to.eq(await factory.getAddress());
-    expect(await pair.token0()).to.eq(TEST_ADDRESSES[0]);
-    expect(await pair.token1()).to.eq(TEST_ADDRESSES[1]);
+    expect(await pair.token0()).to.eq(token0);
+    expect(await pair.token1()).to.eq(token1);
   }
 
   it('createPair', async function() {
@@ -125,5 +125,79 @@ let factory;
     expect(await factory.feeToSetter()).to.eq(otherAddress);
     await expect(factory.setFeeToSetter(walletAddress))
       .to.be.revertedWith('UniswapV2: FORBIDDEN');
+  });
+
+  it('createPair:identicalAddresses', async function() {
+    await expect(factory.createPair(TEST_ADDRESSES[0], TEST_ADDRESSES[0]))
+      .to.be.revertedWith('UniswapV2: IDENTICAL_ADDRESSES');
+  });
+
+  it('createPair:zeroAddress', async function() {
+    await expect(factory.createPair(ethers.ZeroAddress, TEST_ADDRESSES[0]))
+      .to.be.revertedWith('UniswapV2: ZERO_ADDRESS');
+    await expect(factory.createPair(TEST_ADDRESSES[0], ethers.ZeroAddress))
+      .to.be.revertedWith('UniswapV2: ZERO_ADDRESS');
+  });
+
+  it('createPair:multiplePairs', async function() {
+    await createPair(TEST_ADDRESSES);
+    expect(await factory.allPairsLength()).to.eq(1);
+
+    const TEST_ADDRESSES_2 = [
+      '0x3000000000000000000000000000000000000000',
+      '0x4000000000000000000000000000000000000000'
+    ];
+    await createPair(TEST_ADDRESSES_2, 2);
+    expect(await factory.allPairsLength()).to.eq(2);
+
+    const TEST_ADDRESSES_3 = [
+      '0x5000000000000000000000000000000000000000',
+      '0x6000000000000000000000000000000000000000'
+    ];
+    await createPair(TEST_ADDRESSES_3, 3);
+    expect(await factory.allPairsLength()).to.eq(3);
+  });
+
+  it('getPair:nonExistent', async function() {
+    const TEST_ADDRESSES_2 = [
+      '0x3000000000000000000000000000000000000000',
+      '0x4000000000000000000000000000000000000000'
+    ];
+    expect(await factory.getPair(TEST_ADDRESSES_2[0], TEST_ADDRESSES_2[1])).to.eq(ethers.ZeroAddress);
+    expect(await factory.getPair(TEST_ADDRESSES_2[1], TEST_ADDRESSES_2[0])).to.eq(ethers.ZeroAddress);
+  });
+
+  it('setFeeTo:zeroAddress', async function() {
+    await factory.setFeeTo(ethers.ZeroAddress);
+    expect(await factory.feeTo()).to.eq(ethers.ZeroAddress);
+  });
+
+  it('setFeeTo:change', async function() {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    await factory.setFeeTo(walletAddress);
+    expect(await factory.feeTo()).to.eq(walletAddress);
+    await factory.setFeeTo(otherAddress);
+    expect(await factory.feeTo()).to.eq(otherAddress);
+  });
+
+  it('allPairs:index', async function() {
+    await createPair(TEST_ADDRESSES);
+    const UniswapV2Pair = await ethers.getContractFactory("UniswapV2Pair");
+    const bytecode = UniswapV2Pair.bytecode;
+    const initCodeHash = keccak256(bytecode);
+    const [token0, token1] = TEST_ADDRESSES[0] < TEST_ADDRESSES[1] ? [TEST_ADDRESSES[0], TEST_ADDRESSES[1]] : [TEST_ADDRESSES[1], TEST_ADDRESSES[0]];
+    let salt = keccak256(solidityPacked(['address', 'address'], [token0, token1]));
+    const create2Address = getCreate2Address(await factory.getAddress(), salt, initCodeHash);
+    
+    expect(await factory.allPairs(0)).to.eq(create2Address);
+    await expect(factory.allPairs(1)).to.be.reverted; // Index out of bounds
+  });
+
+  it('createPair:sameTokensDifferentOrder', async function() {
+    await createPair(TEST_ADDRESSES);
+    // Try to create pair with same tokens but different order - should fail
+    await expect(factory.createPair(TEST_ADDRESSES[1], TEST_ADDRESSES[0]))
+      .to.be.revertedWith('UniswapV2: PAIR_EXISTS');
   });
 });

@@ -311,4 +311,232 @@ describe('UniswapV2Pair', function() {
     expect(await token0.balanceOf(await pair.getAddress())).to.eq(BigInt(1000) + BigInt('249501683697445'));
     expect(await token1.balanceOf(await pair.getAddress())).to.eq(BigInt(1000) + BigInt('250000187312969'));
   });
+
+  it('mint:insufficientLiquidity', async function() {
+    // Use amounts that result in liquidity less than MINIMUM_LIQUIDITY
+    // sqrt(1000 * 1000) = 1000, minus MINIMUM_LIQUIDITY(1000) = 0
+    const token0Amount = BigInt(1000);
+    const token1Amount = BigInt(1000);
+    const pairAddress = await pair.getAddress();
+    await token0.transfer(pairAddress, token0Amount);
+    await token1.transfer(pairAddress, token1Amount);
+
+    // Try to mint with very small amounts that would result in zero liquidity
+    await expect(pair.mint(wallet.address))
+      .to.be.revertedWith('UniswapV2: INSUFFICIENT_LIQUIDITY_MINTED');
+  });
+
+  it('mint:unequalAmounts', async function() {
+    const token0Amount = expandTo18Decimals(1);
+    const token1Amount = expandTo18Decimals(10);
+    const pairAddress = await pair.getAddress();
+    await token0.transfer(pairAddress, token0Amount);
+    await token1.transfer(pairAddress, token1Amount);
+
+    // sqrt(1 * 10) = sqrt(10) ≈ 3.16, so expected liquidity ≈ 3.16 - 0.001 = ~3.16
+    // But we need to calculate the exact value: sqrt(1e18 * 10e18) - 1000
+    const expectedLiquidity = expandTo18Decimals(2); // Approximate value
+    await expect(pair.mint(wallet.address))
+      .to.emit(pair, 'Mint')
+      .withArgs(wallet.address, token0Amount, token1Amount);
+    
+    // Check that liquidity was minted (should be positive)
+    const totalSupply = await pair.totalSupply();
+    expect(totalSupply).to.be.gt(MINIMUM_LIQUIDITY);
+  });
+
+  it('burn:insufficientLiquidity', async function() {
+    const token0Amount = expandTo18Decimals(1);
+    const token1Amount = expandTo18Decimals(4);
+    await addLiquidity(token0Amount, token1Amount);
+
+    // Try to burn more than available
+    await pair.transfer(await pair.getAddress(), 1n);
+    await expect(pair.burn(wallet.address))
+      .to.be.reverted; // Should fail due to insufficient balance
+  });
+
+  it('burn:zeroLiquidity', async function() {
+    const token0Amount = expandTo18Decimals(3);
+    const token1Amount = expandTo18Decimals(3);
+    await addLiquidity(token0Amount, token1Amount);
+
+    // Try to burn when no liquidity tokens are sent to pair
+    await expect(pair.burn(wallet.address))
+      .to.be.revertedWith('UniswapV2: INSUFFICIENT_LIQUIDITY_BURNED');
+  });
+
+  it('swap:insufficientOutputAmount', async function() {
+    const token0Amount = expandTo18Decimals(5);
+    const token1Amount = expandTo18Decimals(10);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const swapAmount = expandTo18Decimals(1);
+    await token0.transfer(await pair.getAddress(), swapAmount);
+    
+    // Request more output than available
+    await expect(pair.swap(0, token1Amount + 1n, wallet.address, '0x'))
+      .to.be.revertedWith('UniswapV2: INSUFFICIENT_LIQUIDITY');
+  });
+
+  it('swap:zeroOutput', async function() {
+    const token0Amount = expandTo18Decimals(5);
+    const token1Amount = expandTo18Decimals(10);
+    await addLiquidity(token0Amount, token1Amount);
+
+    // Try to swap with zero output
+    await expect(pair.swap(0, 0, wallet.address, '0x'))
+      .to.be.revertedWith('UniswapV2: INSUFFICIENT_OUTPUT_AMOUNT');
+  });
+
+  it('swap:invalidTo', async function() {
+    const token0Amount = expandTo18Decimals(5);
+    const token1Amount = expandTo18Decimals(10);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const swapAmount = expandTo18Decimals(1);
+    const expectedOutputAmount = BigInt('1662497915624478906');
+    await token0.transfer(await pair.getAddress(), swapAmount);
+
+    const token0Address = await token0.getAddress();
+    const token1Address = await token1.getAddress();
+    
+    // Try to swap to token0 address
+    await expect(pair.swap(0, expectedOutputAmount, token0Address, '0x'))
+      .to.be.revertedWith('UniswapV2: INVALID_TO');
+    
+    // Try to swap to token1 address
+    await expect(pair.swap(0, expectedOutputAmount, token1Address, '0x'))
+      .to.be.revertedWith('UniswapV2: INVALID_TO');
+  });
+
+  it('swap:bothDirections', async function() {
+    const token0Amount = expandTo18Decimals(5);
+    const token1Amount = expandTo18Decimals(10);
+    await addLiquidity(token0Amount, token1Amount);
+
+    // Swap token0 for token1
+    const swapAmount0 = expandTo18Decimals(1);
+    const expectedOutputAmount1 = BigInt('1662497915624478906');
+    await token0.transfer(await pair.getAddress(), swapAmount0);
+    await pair.swap(0, expectedOutputAmount1, wallet.address, '0x');
+
+    // Swap token1 for token0
+    const swapAmount1 = expandTo18Decimals(1);
+    const expectedOutputAmount0 = BigInt('453305446940074565');
+    await token1.transfer(await pair.getAddress(), swapAmount1);
+    await pair.swap(expectedOutputAmount0, 0, wallet.address, '0x');
+  });
+
+  it('skim', async function() {
+    const token0Amount = expandTo18Decimals(1);
+    const token1Amount = expandTo18Decimals(4);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const token0before = await token0.balanceOf(wallet.address);
+    const token1before = await token1.balanceOf(wallet.address);
+    // Send extra tokens directly to pair (simulating airdrop or transfer)
+    const extraAmount0 = expandTo18Decimals(1);
+    const extraAmount1 = expandTo18Decimals(1);
+    await token0.transfer(await pair.getAddress(), extraAmount0);
+    await token1.transfer(await pair.getAddress(), extraAmount1);
+
+    const pairAddress = await pair.getAddress();
+    const balance0Before = await token0.balanceOf(pairAddress);
+    const balance1Before = await token1.balanceOf(pairAddress);
+    const reserves = await pair.getReserves();
+
+    // Skim should transfer excess tokens
+    await expect(pair.skim(wallet.address))
+      .to.emit(token0, 'Transfer')
+      .withArgs(pairAddress, wallet.address, balance0Before - reserves[0])
+      .to.emit(token1, 'Transfer')
+      .withArgs(pairAddress, wallet.address, balance1Before - reserves[1]);
+
+    expect(await token0.balanceOf(wallet.address)).to.eq(token0before);
+    expect(await token1.balanceOf(wallet.address)).to.eq(token1before);
+  });
+
+  it('sync', async function() {
+    const token0Amount = expandTo18Decimals(1);
+    const token1Amount = expandTo18Decimals(4);
+    await addLiquidity(token0Amount, token1Amount);
+
+    // Send extra tokens directly to pair
+    const extraAmount0 = expandTo18Decimals(1);
+    const extraAmount1 = expandTo18Decimals(1);
+    await token0.transfer(await pair.getAddress(), extraAmount0);
+    await token1.transfer(await pair.getAddress(), extraAmount1);
+
+    const pairAddress = await pair.getAddress();
+    const balance0 = await token0.balanceOf(pairAddress);
+    const balance1 = await token1.balanceOf(pairAddress);
+
+    // Sync should update reserves to match balances
+    await expect(pair.sync())
+      .to.emit(pair, 'Sync')
+      .withArgs(balance0, balance1);
+
+    const reserves = await pair.getReserves();
+    expect(reserves[0]).to.eq(balance0);
+    expect(reserves[1]).to.eq(balance1);
+  });
+
+  it('getReserves', async function() {
+    const token0Amount = expandTo18Decimals(1);
+    const token1Amount = expandTo18Decimals(4);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const reserves = await pair.getReserves();
+    expect(reserves[0]).to.eq(token0Amount);
+    expect(reserves[1]).to.eq(token1Amount);
+    expect(reserves[2]).to.be.gt(0); // blockTimestampLast should be set
+  });
+
+  it('factory', async function() {
+    expect(await pair.factory()).to.eq(await factory.getAddress());
+  });
+
+  it('token0 and token1', async function() {
+    const token0Address = await token0.getAddress();
+    const token1Address = await token1.getAddress();
+    expect(await pair.token0()).to.eq(token0Address);
+    expect(await pair.token1()).to.eq(token1Address);
+  });
+
+  it('swap:largeAmount', async function() {
+    const token0Amount = expandTo18Decimals(1000);
+    const token1Amount = expandTo18Decimals(1000);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const swapAmount = expandTo18Decimals(100);
+    const expectedOutputAmount = BigInt('906610893880149131');
+    await token0.transfer(await pair.getAddress(), swapAmount);
+    await pair.swap(0, expectedOutputAmount, wallet.address, '0x');
+
+    const reserves = await pair.getReserves();
+    expect(reserves[0]).to.eq(token0Amount + swapAmount);
+    expect(reserves[1]).to.eq(token1Amount - expectedOutputAmount);
+  });
+
+  it('mint:secondMint', async function() {
+    const token0Amount = expandTo18Decimals(1);
+    const token1Amount = expandTo18Decimals(4);
+    await addLiquidity(token0Amount, token1Amount);
+
+    const initialSupply = await pair.totalSupply();
+    const initialBalance = await pair.balanceOf(wallet.address);
+
+    // Add more liquidity
+    const additionalToken0Amount = expandTo18Decimals(1);
+    const additionalToken1Amount = expandTo18Decimals(4);
+    await token0.transfer(await pair.getAddress(), additionalToken0Amount);
+    await token1.transfer(await pair.getAddress(), additionalToken1Amount);
+    await pair.mint(wallet.address);
+
+    const newSupply = await pair.totalSupply();
+    const newBalance = await pair.balanceOf(wallet.address);
+    expect(newSupply).to.be.gt(initialSupply);
+    expect(newBalance).to.be.gt(initialBalance);
+  });
 });

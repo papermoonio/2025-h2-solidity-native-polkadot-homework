@@ -129,4 +129,236 @@ describe('UniswapV2ERC20', function () {
     expect(await token.balanceOf(otherAddress)).to.eq(TEST_AMOUNT)
   })
 
+  it('approve:zero', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    await token.approve(otherAddress, 0)
+    expect(await token.allowance(walletAddress, otherAddress)).to.eq(0)
+  })
+
+  it('approve:change', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    await token.approve(otherAddress, TEST_AMOUNT)
+    expect(await token.allowance(walletAddress, otherAddress)).to.eq(TEST_AMOUNT)
+    await token.approve(otherAddress, TEST_AMOUNT * 2n)
+    expect(await token.allowance(walletAddress, otherAddress)).to.eq(TEST_AMOUNT * 2n)
+  })
+
+  it('transfer:zero', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    await expect(token.transfer(otherAddress, 0))
+      .to.emit(token, 'Transfer')
+      .withArgs(walletAddress, otherAddress, 0)
+    expect(await token.balanceOf(walletAddress)).to.eq(TOTAL_SUPPLY)
+    expect(await token.balanceOf(otherAddress)).to.eq(0)
+  })
+
+  it('transferFrom:insufficientAllowance', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    await token.approve(otherAddress, TEST_AMOUNT - 1n)
+    await expect(token.connect(other).transferFrom(walletAddress, otherAddress, TEST_AMOUNT))
+      .to.be.reverted // ds-math-sub-underflow
+  })
+
+  it('transferFrom:insufficientBalance', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    await token.approve(otherAddress, TOTAL_SUPPLY + 1n)
+    await expect(token.connect(other).transferFrom(walletAddress, otherAddress, TOTAL_SUPPLY + 1n))
+      .to.be.reverted // ds-math-sub-underflow
+  })
+
+  it('permit', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    const abiCoder = new AbiCoder();
+    const name = await token.name();
+    const tokenAddress = await token.getAddress();
+    const chainId = (await ethers.provider.getNetwork()).chainId;
+    const nonce = await token.nonces(walletAddress);
+    const deadline = ethers.MaxUint256;
+    const value = TEST_AMOUNT;
+
+    const domain = {
+      name: name,
+      version: '1',
+      chainId: chainId,
+      verifyingContract: tokenAddress
+    };
+
+    const types = {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' }
+      ]
+    };
+
+    const message = {
+      owner: walletAddress,
+      spender: otherAddress,
+      value: value,
+      nonce: nonce,
+      deadline: deadline
+    };
+
+    const signature = await wallet.signTypedData(domain, types, message);
+    const { r, s, v } = ethers.Signature.from(signature);
+
+    await expect(token.permit(walletAddress, otherAddress, value, deadline, v, r, s))
+      .to.emit(token, 'Approval')
+      .withArgs(walletAddress, otherAddress, value);
+    
+    expect(await token.allowance(walletAddress, otherAddress)).to.eq(value);
+    expect(await token.nonces(walletAddress)).to.eq(nonce + 1n);
+  })
+
+  it('permit:fail', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    const abiCoder = new AbiCoder();
+    const name = await token.name();
+    const tokenAddress = await token.getAddress();
+    const chainId = (await ethers.provider.getNetwork()).chainId;
+    const nonce = await token.nonces(walletAddress);
+    const deadline = ethers.MaxUint256;
+    const value = TEST_AMOUNT;
+
+    const domain = {
+      name: name,
+      version: '1',
+      chainId: chainId,
+      verifyingContract: tokenAddress
+    };
+
+    const types = {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' }
+      ]
+    };
+
+    const message = {
+      owner: walletAddress,
+      spender: otherAddress,
+      value: value,
+      nonce: nonce,
+      deadline: deadline
+    };
+
+    // Sign with wrong signer
+    const signature = await other.signTypedData(domain, types, message);
+    const { r, s, v } = ethers.Signature.from(signature);
+
+    await expect(token.permit(walletAddress, otherAddress, value, deadline, v, r, s))
+      .to.be.revertedWith('UniswapV2: INVALID_SIGNATURE');
+  })
+
+  it('permit:expired', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    const name = await token.name();
+    const tokenAddress = await token.getAddress();
+    const chainId = (await ethers.provider.getNetwork()).chainId;
+    const nonce = await token.nonces(walletAddress);
+    const deadline = 1n; // Expired deadline
+    const value = TEST_AMOUNT;
+
+    const domain = {
+      name: name,
+      version: '1',
+      chainId: chainId,
+      verifyingContract: tokenAddress
+    };
+
+    const types = {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' }
+      ]
+    };
+
+    const message = {
+      owner: walletAddress,
+      spender: otherAddress,
+      value: value,
+      nonce: nonce,
+      deadline: deadline
+    };
+
+    const signature = await wallet.signTypedData(domain, types, message);
+    const { r, s, v } = ethers.Signature.from(signature);
+
+    await expect(token.permit(walletAddress, otherAddress, value, deadline, v, r, s))
+      .to.be.revertedWith('UniswapV2: EXPIRED');
+  })
+
+  it('nonces', async () => {
+    let walletAddress = await wallet.getAddress();
+    let otherAddress = await other.getAddress();
+    expect(await token.nonces(walletAddress)).to.eq(0);
+    
+    const name = await token.name();
+    const tokenAddress = await token.getAddress();
+    const chainId = (await ethers.provider.getNetwork()).chainId;
+    const deadline = ethers.MaxUint256;
+    const value = TEST_AMOUNT;
+
+    const domain = {
+      name: name,
+      version: '1',
+      chainId: chainId,
+      verifyingContract: tokenAddress
+    };
+
+    const types = {
+      Permit: [
+        { name: 'owner', type: 'address' },
+        { name: 'spender', type: 'address' },
+        { name: 'value', type: 'uint256' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'deadline', type: 'uint256' }
+      ]
+    };
+
+    // First permit
+    let nonce = await token.nonces(walletAddress);
+    let message = {
+      owner: walletAddress,
+      spender: otherAddress,
+      value: value,
+      nonce: nonce,
+      deadline: deadline
+    };
+    let signature = await wallet.signTypedData(domain, types, message);
+    let { r, s, v } = ethers.Signature.from(signature);
+    await token.permit(walletAddress, otherAddress, value, deadline, v, r, s);
+    expect(await token.nonces(walletAddress)).to.eq(1);
+
+    // Second permit
+    nonce = await token.nonces(walletAddress);
+    message = {
+      owner: walletAddress,
+      spender: otherAddress,
+      value: value * 2n,
+      nonce: nonce,
+      deadline: deadline
+    };
+    signature = await wallet.signTypedData(domain, types, message);
+    ({ r, s, v } = ethers.Signature.from(signature));
+    await token.permit(walletAddress, otherAddress, value * 2n, deadline, v, r, s);
+    expect(await token.nonces(walletAddress)).to.eq(2);
+  })
+
 })
