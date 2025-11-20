@@ -23,8 +23,7 @@ jobs:
       - name: zsh Action
         uses: gbraad-actions/zsh-action@v2
         with:          
-          working-directory: lessons-5/491/uniswap-v2-polkadot
-          run: ./scripts/start-revive-rpc.sh
+          run: cd lessons-5/491/uniswap-v2-polkadot && ./scripts/start-revive-rpc.sh
 
       - name: Install dependencies
         run: npm install
