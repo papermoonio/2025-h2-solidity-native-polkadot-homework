@@ -19,10 +19,14 @@ jobs:
         with:
           node-version: "18"
 
+      - name: launch node
+        working-directory: lessons-5/491/uniswap-v2-polkadot
+        run: ./scripts/start-revive-rpc.sh
+
       - name: Install dependencies
         run: npm install
-        working-directory: lessons-5/491/uniswap-v2-polkadot
         
       - name: Test
         run: npm test
         working-directory: lessons-5/491/uniswap-v2-polkadot
+
