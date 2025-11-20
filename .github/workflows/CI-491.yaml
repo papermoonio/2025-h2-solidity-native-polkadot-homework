@@ -33,6 +33,7 @@ jobs:
         run: zsh ./scripts/start-revive-rpc.sh
         
       - name: Install dependencies
+        working-directory: lesson-5/491/uniswap-v2-polkadot/
         run: npm install
         
       - name: Test
