@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "lessons-5/491/uniswap-v2-polkadot/**"
+      - "lesson-5/491/uniswap-v2-polkadot/**"
   pull_request:
   workflow_dispatch:
 
@@ -21,7 +21,7 @@ jobs:
           node-version: "24"
           
       - name: Install zsh
-        working-directory: lessons-5/491/uniswap-v2-polkadot/
+        working-directory: lesson-5/491/uniswap-v2-polkadot/
         run: |
           sudo apt-get update
           sudo apt-get install -y zsh
@@ -29,7 +29,7 @@ jobs:
           
 
       - name: Run script with zsh
-        working-directory: lessons-5/491/uniswap-v2-polkadot/
+        working-directory: lesson-5/491/uniswap-v2-polkadot/
         run: zsh ./scripts/start-revive-rpc.sh
         
       - name: Install dependencies
@@ -37,5 +37,5 @@ jobs:
         
       - name: Test
         run: npm test
-        working-directory: lessons-5/491/uniswap-v2-polkadot/
+        working-directory: lesson-5/491/uniswap-v2-polkadot/
 
