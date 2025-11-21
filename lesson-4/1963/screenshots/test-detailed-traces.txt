@@ -1,0 +1,92 @@
+No files changed, compilation skipped
+
+Ran 3 tests for test/ProxyUpgradeTest.t.sol:ProxyUpgradeTest
+[PASS] test_admin_change_and_protection() (gas: 186490)
+Traces:
+  [186490] ProxyUpgradeTest::test_admin_change_and_protection()
+    ├─ [2597] ERC1967Proxy::admin() [staticcall]
+    │   └─ ← [Return] ProxyUpgradeTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496]
+    ├─ [96139] → new LogicV2@0xF62849F9A0B5Bf2913b396098F7c7019b51A820a
+    │   └─ ← [Return] 480 bytes of code
+    ├─ [0] VM::prank(ProxyUpgradeTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [5469] ERC1967Proxy::changeAdmin(0x000000000000000000000000000000000000bEEF)
+    │   ├─ emit AdminChanged(previousAdmin: ProxyUpgradeTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496], newAdmin: 0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Stop]
+    ├─ [597] ERC1967Proxy::admin() [staticcall]
+    │   └─ ← [Return] 0x000000000000000000000000000000000000bEEF
+    ├─ [0] VM::prank(ProxyUpgradeTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  
+only-admin)
+    │   └─ ← [Return]
+    ├─ [894] ERC1967Proxy::upgradeTo(LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Revert] only-admin
+    ├─ [0] VM::prank(0x000000000000000000000000000000000000bEEF)
+    │   └─ ← [Return]
+    ├─ [6859] ERC1967Proxy::upgradeTo(LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   ├─ emit Upgraded(implementation: LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Stop]
+    ├─ [531] ERC1967Proxy::implementation() [staticcall]
+    │   └─ ← [Return] LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a]
+    └─ ← [Stop]
+
+[PASS] test_initial_delegatecall_behavior() (gas: 41583)
+Traces:
+  [41583] ProxyUpgradeTest::test_initial_delegatecall_behavior()
+    ├─ [2402] LogicV1::counter() [staticcall]
+    │   └─ ← [Return] 0
+    ├─ [2470] ERC1967Proxy::getCounter() [staticcall]
+    │   └─ ← [Return] 0
+    ├─ [22997] ERC1967Proxy::fallback()
+    │   ├─ [20453] LogicV1::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [470] ERC1967Proxy::getCounter() [staticcall]
+    │   └─ ← [Return] 1
+    ├─ [402] LogicV1::counter() [staticcall]
+    │   └─ ← [Return] 0
+    └─ ← [Stop]
+
+[PASS] test_upgrade_to_v2_and_persist_state() (gas: 211844)
+Traces:
+  [211844] ProxyUpgradeTest::test_upgrade_to_v2_and_persist_state()
+    ├─ [27497] ERC1967Proxy::fallback()
+    │   ├─ [22453] LogicV1::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [1097] ERC1967Proxy::fallback()
+    │   ├─ [553] LogicV1::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [470] ERC1967Proxy::getCounter() [staticcall]
+    │   └─ ← [Return] 2
+    ├─ [96139] → new LogicV2@0xF62849F9A0B5Bf2913b396098F7c7019b51A820a
+    │   └─ ← [Return] 480 bytes of code
+    ├─ [0] VM::prank(0x000000000000000000000000000000000000dEaD)
+    │   └─ ← [Return]
+    ├─ [0] VM::expectRevert(custom error 0xf28dceb3:  
+only-admin)
+    │   └─ ← [Return]
+    ├─ [2894] ERC1967Proxy::upgradeTo(LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Revert] only-admin
+    ├─ [0] VM::prank(ProxyUpgradeTest: [0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496])
+    │   └─ ← [Return]
+    ├─ [6759] ERC1967Proxy::upgradeTo(LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   ├─ emit Upgraded(implementation: LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a])
+    │   └─ ← [Stop]
+    ├─ [531] ERC1967Proxy::implementation() [staticcall]
+    │   └─ ← [Return] LogicV2: [0xF62849F9A0B5Bf2913b396098F7c7019b51A820a]
+    ├─ [1097] ERC1967Proxy::fallback()
+    │   ├─ [553] LogicV2::increment() [delegatecall]
+    │   │   └─ ← [Stop]
+    │   └─ ← [Return]
+    ├─ [470] ERC1967Proxy::getCounter() [staticcall]
+    │   └─ ← [Return] 7
+    ├─ [2402] LogicV2::counter() [staticcall]
+    │   └─ ← [Return] 0
+    └─ ← [Stop]
+
+Suite result: ok. 3 passed; 0 failed; 0 skipped; finished in 1.18ms (628.43µs CPU time)
+
+Ran 1 test suite in 400.21ms (1.18ms CPU time): 3 tests passed, 0 failed, 0 skipped (3 total tests)

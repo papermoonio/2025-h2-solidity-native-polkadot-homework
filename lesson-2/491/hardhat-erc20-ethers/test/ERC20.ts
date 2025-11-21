@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { network } from "hardhat";
-const {ethers}  = await network.connect();
+const { ethers } = await network.connect();
 
 describe("ERC20 (no OZ)", function () {
   const NAME = "SampleToken";
   const SYMBOL = "STK";
   const DECIMALS = 18;
-  const INITIAL = ethers.parseUnits("100000000000000");
-  const OTHER_INITIAL = ethers.parseUnits("1.0");
+  const INITIAL = ethers.parseUnits("1000000");
+  const OTHER_INITIAL = ethers.parseUnits("1000");
 
   let owner: any;
   let token: any;
@@ -16,15 +16,29 @@ describe("ERC20 (no OZ)", function () {
   let address3: any;
 
   beforeEach(async function () {
-    [owner]= await ethers.getSigners();
+    [owner] = await ethers.getSigners();
     address1 = await ethers.Wallet.createRandom().connect(ethers.provider);
     address2 = await ethers.Wallet.createRandom().connect(ethers.provider);;
     address3 = await ethers.Wallet.createRandom().connect(ethers.provider);;
 
     token = await ethers.deployContract("ERC20", [NAME, SYMBOL, DECIMALS, INITIAL]);
     await token.waitForDeployment();
+    let balance = await ethers.provider.getBalance(owner.address);
+    console.log(`owner balance is ${balance}`)
 
-    const addrsToTransfer = [address1, address2, address3]; 
+    const addrsToTransfer = [address1, address2, address3];
+    let counter = 0;
+    for (const addr of addrsToTransfer) {
+      counter++;
+      await owner.sendTransaction({
+        to: addr.address,
+        value: OTHER_INITIAL,
+      });
+      const balance = await ethers.provider.getBalance(addr.address);
+      console.log(`addr${counter} balance is ${balance}`);
+    }
+    balance = await ethers.provider.getBalance(owner.address);
+    console.log(`owner balance is ${balance}`)
   });
 
   async function deploy() {
@@ -33,7 +47,7 @@ describe("ERC20 (no OZ)", function () {
     // const token = await ERC20.deploy(NAME, SYMBOL, DECIMALS, INITIAL);
     // await token.waitForDeployment();
     // return { token, deployer, alice, bob, carol };
-     return { token, deployer: owner, alice: address1, bob : address2, carol: address3 };
+    return { token, deployer: owner, alice: address1, bob: address2, carol: address3 };
   }
 
   it("has correct metadata", async () => {
@@ -79,6 +93,17 @@ describe("ERC20 (no OZ)", function () {
     expect(await token.allowance(deployer.address, alice.address)).to.equal(amount);
   });
 
+  it("transferFrom spends allowance and transfers", async () => {
+    const { token, deployer, alice, bob } = await deploy();
+    const amount = ethers.parseUnits("7", DECIMALS);
+    await token.approve(alice.address, amount);
+    console.log(`bob is address: ${bob.address}`)
+    await expect(token.connect(alice).transferFrom(deployer.address, bob.address, amount))
+      .to.emit(token, "Transfer")
+      .withArgs(deployer.address, bob.address, amount);
+    expect(await token.allowance(deployer.address, alice.address)).to.equal(0n);
+    expect(await token.balanceOf(bob.address)).to.equal(amount);
+  });
 
   it("transferFrom reverts when allowance is insufficient", async () => {
     const { token, deployer, alice, bob } = await deploy();

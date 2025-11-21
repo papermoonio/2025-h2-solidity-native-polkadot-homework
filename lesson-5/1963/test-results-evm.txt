@@ -1,0 +1,9 @@
+[dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+Error HH8: There's one or more errors in your config file:
+
+  * Invalid account: #1 for network: local - Expected string, received object
+  * Invalid account: #0 for network: passetHub - Expected string, received object
+
+To learn more about Hardhat's configuration, please go to https://v2.hardhat.org/config/
+
+For more info go to https://v2.hardhat.org/HH8 or run Hardhat with --show-stack-traces

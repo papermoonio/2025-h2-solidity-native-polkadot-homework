@@ -11,10 +11,11 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/scripts/export_secret_hex.ts",
+            "program": "${file}",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
-            ]
+            ],
+            "runtimeExecutable": "/home/lucas/.nvm/versions/node/v24.11.0/bin/node"
         }
     ]
 }

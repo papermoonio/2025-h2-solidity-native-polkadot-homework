@@ -7,7 +7,11 @@ pragma solidity ^0.8.28;
 contract ERC20 {
     // --- Events (per EIP-20)
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 
     // --- Storage
     string private _name;
@@ -19,7 +23,12 @@ contract ERC20 {
     mapping(address => mapping(address => uint256)) private _allowances;
 
     // --- Constructor
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, uint256 initialSupply_) {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_,
+        uint256 initialSupply_
+    ) {
         _name = name_;
         _symbol = symbol_;
         _decimals = decimals_;
@@ -49,7 +58,10 @@ contract ERC20 {
         return _balances[account];
     }
 
-    function allowance(address owner_, address spender) public view returns (uint256) {
+    function allowance(
+        address owner_,
+        address spender
+    ) public view returns (uint256) {
         return _allowances[owner_][spender];
     }
 
@@ -64,7 +76,11 @@ contract ERC20 {
         return true;
     }
 
-    function transferFrom(address from, address to, uint256 value) external returns (bool) {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool) {
         uint256 currentAllowance = _allowances[from][msg.sender];
         if (currentAllowance < value) revert InsufficientAllowance();
         unchecked {
@@ -75,12 +91,22 @@ contract ERC20 {
     }
 
     // --- Optional helpers (commonly used)
-    function increaseAllowance(address spender, uint256 addedValue) external returns (bool) {
-        _approve(msg.sender, spender, _allowances[msg.sender][spender] + addedValue);
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) external returns (bool) {
+        _approve(
+            msg.sender,
+            spender,
+            _allowances[msg.sender][spender] + addedValue
+        );
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool) {
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) external returns (bool) {
         uint256 current = _allowances[msg.sender][spender];
         if (current < subtractedValue) revert InsufficientAllowance();
         unchecked {
@@ -130,5 +156,3 @@ contract ERC20 {
         emit Transfer(from, address(0), value);
     }
 }
-
-
