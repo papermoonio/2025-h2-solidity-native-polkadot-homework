@@ -20,8 +20,26 @@ describe('UniswapV2Pair', function() {
   let other;
 
   beforeEach(async function() {
-
-    [wallet, other] = await ethers.getSigners();
+    const signers = await ethers.getSigners();
+    wallet = signers[0];
+    
+    // 检查是否需要创建第二个账户
+    if (signers.length < 2) {
+      // PolkaVM 模式：只有 1 个账户，动态创建第二个
+      const randomWallet = ethers.Wallet.createRandom();
+      other = randomWallet.connect(ethers.provider);
+      
+      // 从 wallet 转账给 other
+      await wallet.sendTransaction({
+        to: other.address,
+        value: ethers.parseEther('100')
+      });
+      
+      console.log('✅ Created second account for Pair tests:', other.address);
+    } else {
+      // EVM 模式：使用预置的第二个账户
+      other = signers[1];
+    }
 
     let UniswapV2Pair;
     if (hre.network.polkavm === true) {

@@ -27,22 +27,41 @@ describe('UniswapV2ERC20', function () {
 
     token = await ERC20.deploy(TOTAL_SUPPLY);
     await token.waitForDeployment();
-    [wallet, other] = await ethers.getSigners();
-
+    
+    const signers = await ethers.getSigners();
+    wallet = signers[0];
+    
+    // 确定转账金额
     let value;
-
     if (hre.network.name === 'local') {
       value = ethers.parseEther('100') // Local node has higher gas fees
     } else {
       value = ethers.parseEther('1')
     }
-
-    // send balance to other
-    let otherAddress = await other.getAddress();
-    await wallet.sendTransaction({
-      to: otherAddress,
-      value: value
-    });
+    
+    // 检查是否需要创建第二个账户
+    if (signers.length < 2) {
+      // PolkaVM 模式：只有 1 个账户，动态创建第二个
+      const randomWallet = ethers.Wallet.createRandom();
+      other = randomWallet.connect(ethers.provider);
+      
+      // 直接充值到新账户
+      await wallet.sendTransaction({
+        to: other.address,
+        value: value
+      });
+      
+      console.log('✅ Created and funded second account for ERC20 tests:', other.address);
+    } else {
+      // EVM 模式：使用预置的第二个账户
+      other = signers[1];
+      
+      // 给第二个账户充值
+      await wallet.sendTransaction({
+        to: other.address,
+        value: value
+      });
+    }
   });
 
   it('name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR, PERMIT_TYPEHASH', async () => {
