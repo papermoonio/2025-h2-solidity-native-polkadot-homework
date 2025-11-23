@@ -1,0 +1,77 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "runtimeExecutable": "/home/Joe/.nvm/versions/node/v25.0.0/bin/node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/test/DenialOfService.ts",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "name": "Launch Hardhat Test",
+            "type": "node",
+            "runtimeExecutable": "/home/Joe/.nvm/versions/node/v25.0.0/bin/node",
+            "request": "launch",
+            "args": [
+                "--inspect-brk",
+                "./node_modules/.bin/hardhat",
+                "test",
+                "test/DenialOfService.ts",
+                "--network",
+                "local"
+            ],
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ]
+        },
+        {
+            "name": "Attach Hardhat",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "restart": true,
+            "skipFiles": [
+                "<node_internals>/**",
+                "node_modules/**"
+            ]
+        },
+        {
+            "type": "node",
+            "runtimeExecutable": "/home/Joe/.nvm/versions/node/v25.0.0/bin/node",
+            "request": "launch",
+            "name": "Debug Hardhat Test (pnpm)",
+            "program": "${workspaceFolder}/node_modules/hardhat/dist/src/cli.js",
+            "args": [
+                "test",
+                "test/DenialOfService.ts",
+                "--network",
+                "local"
+            ],
+            "runtimeArgs": [
+                "--inspect-brk"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug Hardhat Test",
+            "configurations": [
+                "Launch Hardhat Test",
+                "Attach Hardhat"
+            ]
+        }
+    ]
+}
