@@ -2,7 +2,7 @@
 
 ## Prerequisites
 ![Image text]
-(https://github.com/XXYZ-W/2025-h2-solidity-native-polkadot-homework/blob/main/lesson-5/2046/image/%E5%9B%BE%E7%89%871.png)
+(./images/图片1.png)
 Ensure that you have substrate-node, eth-rpc and local resolc binaries on your local machine. If not, follow these instructions to install them:
 
 ```bash
