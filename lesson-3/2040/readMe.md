@@ -1,70 +1,57 @@
-# Hardhat配置和部署说明
+# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
 
-## 持久化配置
+This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
 
-本项目已配置Hardhat使用确定性账户，这意味着每次重启本地网络时：
+To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
 
-1. 使用相同的私钥和地址
-2. 账户余额保持一致
-3. 部署的合约地址保持一致（使用相同的部署脚本）
+## Project Overview
 
-### 确定性账户配置
+This example project includes:
 
-Hardhat配置中已添加了3个确定性账户，每个账户初始余额为10000 ETH：
+- A simple Hardhat configuration file.
+- Foundry-compatible Solidity unit tests.
+- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
+- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
 
-1. Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-   Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+## Usage
 
-2. Account #1: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-   Private Key: 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+### Running Tests
 
-3. Account #2: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-   Private Key: 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
+To run all the tests in the project, execute the following command:
 
-## 部署合约
-
-### 使用Ignition部署（推荐）
-
-```bash
-npx hardhat ignition deploy ignition/modules/MintableERC20.ts
+```shell
+npx hardhat test
 ```
 
-### 使用自定义脚本部署
+You can also selectively run the Solidity or `node:test` tests:
 
-```bash
-npx hardhat run scripts/deploy-mintable-erc20.cjs
+```shell
+npx hardhat test solidity
+npx hardhat test nodejs
 ```
 
-部署信息会自动保存在 `ignition/deployments/chain-31337/deployed_addresses.json` 文件中。
+### Make a deployment to Sepolia
 
-## 检查已部署合约
+This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
 
-### 使用合约检查工具
+To run the deployment to a local chain:
 
-项目提供了一个专门的合约检查工具，可以查看本地链上的所有合约状态：
-
-```bash
-npx hardhat run scripts/check-contracts.ts --network hardhat
+```shell
+npx hardhat ignition deploy ignition/modules/Counter.ts
 ```
 
-该工具会显示：
-- 当前区块号
-- 所有已部署合约的信息
-- ERC20 代币详情（名称、符号、总供应量）
-- 最近交易记录
+To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
 
-详细使用说明请参考：[CONTRACT_CHECK_README.md](CONTRACT_CHECK_README.md)
+You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
 
-### 手动检查部署记录
+To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
 
-```bash
-cat ignition/deployments/chain-31337/deployed_addresses.json
+```shell
+npx hardhat keystore set SEPOLIA_PRIVATE_KEY
 ```
 
-## 启动本地网络
+After setting the variable, you can run the deployment with the Sepolia network:
 
-```bash
-npx hardhat node
+```shell
+npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
 ```
-
-由于使用了确定性账户配置，每次启动网络时账户信息都将保持一致。
