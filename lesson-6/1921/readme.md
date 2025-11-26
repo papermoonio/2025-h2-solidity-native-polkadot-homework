@@ -79,6 +79,173 @@ T5-Tn: 循环往复...
     → 攻击者用 1 ETH 盗取了所有存款
 ```
 
+### 🔄 完整调用链图
+
+以下是基于实际测试（300 ETH 存款，119次重入）的完整调用链：
+
+```
+用户 (attackerAccount)
+    │
+    ├─► [1] Attacker.attack() {value: 1 ETH}
+    │       │
+    │       ├─► [2] VulnerableBank.deposit() {value: 1 ETH}
+    │       │       ✅ balances[Attacker] = 1 ETH
+    │       │       ✅ 银行余额 = 304 ETH (300 + 3 + 1)
+    │       │
+    │       └─► [3] VulnerableBank.withdraw(1 ETH)
+    │               │
+    │               ├─ ✅ require(balances[Attacker] >= 1 ETH)  // 检查通过
+    │               │
+    │               ├─► [4] msg.sender.call{value: 1 ETH}("")  // 转账给 Attacker
+    │               │       │
+    │               │       └─► [5] Attacker.receive() 🔥 重入开始！
+    │               │               │
+    │               │               ├─ attackCount = 1
+    │               │               ├─ 检查: bankBalance = 303 ETH > 1 ETH ✅
+    │               │               │
+    │               │               └─► [6] VulnerableBank.withdraw(1 ETH)  // 🚨 第1次重入！
+    │               │                       │
+    │               │                       ├─ ✅ require(balances[Attacker] >= 1 ETH)  // 余额仍是1ETH！
+    │               │                       │
+    │               │                       ├─► [7] msg.sender.call{value: 1 ETH}("")
+    │               │                       │       │
+    │               │                       │       └─► [8] Attacker.receive() 🔥 第2次重入
+    │               │                       │               │
+    │               │                       │               ├─ attackCount = 2
+    │               │                       │               ├─ 检查: bankBalance = 302 ETH > 1 ETH ✅
+    │               │                       │               │
+    │               │                       │               └─► [9] VulnerableBank.withdraw(1 ETH)
+    │               │                       │                       │
+    │               │                       │                       └─► ... 继续递归 ...
+    │               │                       │
+    │               │                       │               └─► [237] VulnerableBank.withdraw(1 ETH)
+    │               │                       │                       │
+    │               │                       │                       ├─► [238] msg.sender.call{value: 1 ETH}("")
+    │               │                       │                       │       │
+    │               │                       │                       │       └─► [239] Attacker.receive() 🔥 第119次重入（最后一次）
+    │               │                       │                       │               │
+    │               │                       │                       │               ├─ attackCount = 119
+    │               │                       │                       │               ├─ 检查: bankBalance = 185 ETH > 1 ETH ❌
+    │               │                       │                       │               └─ 🛑 不再调用 withdraw，停止重入
+    │               │                       │                       │
+    │               │                       │                       └─ unchecked { balances[Attacker] -= 1 ETH }  // 第118次扣除
+    │               │                       │                       └─ emit Withdraw
+    │               │                       │
+    │               │                       └─ unchecked { balances[Attacker] -= 1 ETH }  // 第2次扣除
+    │               │                       └─ emit Withdraw
+    │               │
+    │               └─ unchecked { balances[Attacker] -= 1 ETH }  // 第1次扣除（最外层）
+    │               └─ emit Withdraw
+    │
+    └─ ✅ 攻击完成！攻击者用 1 ETH 盗取了 118 ETH
+```
+
+### ⏱️ 关键时间点状态变化
+
+```
+时刻 T0: 初始状态
+├─ 银行余额: 303 ETH (Victim1: 300 + Victim2: 3)
+├─ Attacker 合约余额: 0 ETH
+└─ balances[Attacker]: 0 ETH
+
+时刻 T1: Attacker.attack() 存入 1 ETH
+├─ 银行余额: 304 ETH
+├─ Attacker 合约余额: 0 ETH
+└─ balances[Attacker]: 1 ETH
+
+时刻 T2: 第1次 withdraw 开始（外层调用）
+├─ 检查通过: balances[Attacker] = 1 ETH >= 1 ETH ✅
+├─ 转账: 银行 → Attacker (1 ETH)
+├─ 🔥 触发 receive()
+└─ ⚠️ balances[Attacker] 尚未更新，仍是 1 ETH！
+
+时刻 T3: 第2次 withdraw（第1次重入）
+├─ 检查通过: balances[Attacker] = 1 ETH >= 1 ETH ✅ （余额未更新！）
+├─ 转账: 银行 → Attacker (1 ETH)
+├─ 🔥 触发 receive()
+└─ ⚠️ balances[Attacker] 仍是 1 ETH！
+
+... 重复 119 次 ...
+
+时刻 T120: 第119次 withdraw（第118次重入）
+├─ 检查通过: balances[Attacker] = 1 ETH >= 1 ETH ✅
+├─ 转账: 银行 → Attacker (1 ETH)
+├─ 银行余额降至 185 ETH
+├─ 🔥 触发 receive()
+├─ 检查: bankBalance = 185 ETH > 1 ETH? ❌ 不满足
+└─ 🛑 停止重入，开始回退调用栈
+
+时刻 T121-T239: 调用栈回退（119层）
+├─ 每一层执行: unchecked { balances[Attacker] -= 1 ETH }
+├─ 由于使用 unchecked，允许下溢
+└─ 最终 balances[Attacker] = 1 - 119 = 大负数（下溢后变成巨大正数）
+
+时刻 T240: 攻击完成
+├─ 银行余额: 185 ETH
+├─ Attacker 合约余额: 119 ETH
+├─ attackCount: 119
+├─ 攻击者获利: 118 ETH (119 - 1 投入)
+└─ 受害者损失: Victim1 损失 115 ETH，Victim2 损失 3 ETH
+```
+
+### ⛽ 为什么只能重入 119 次？
+
+**答案：Gas 限制！**
+
+每次重入都要消耗 gas：
+1. `withdraw()` 函数调用
+2. `require` 检查
+3. `call` 转账（触发 `receive`）
+4. `receive()` 函数执行
+5. `attackCount++` 状态更新
+6. `unchecked` 块中的余额更新
+7. `Withdraw` 事件发出
+
+**119 次递归调用 ≈ 接近区块 gas 上限**（Hardhat 默认约 30M gas）
+
+```
+银行初始: 303 ETH + 攻击者投入: 1 ETH = 304 ETH
+攻击后银行: 185 ETH
+攻击者获得: 119 ETH
+304 - 185 = 119 ✅ 数字完全吻合
+
+受害者损失分析：
+├─ Victim1: 存入 300 ETH → 只能取回 185 ETH → 损失 115 ETH ❌
+├─ Victim2: 存入 3 ETH → 完全无法取回 → 损失 3 ETH ❌
+└─ 总损失: 118 ETH = 攻击者获利
+```
+
+### 🎯 核心漏洞：违反 CEI 模式
+
+```solidity
+// ❌ 错误的顺序（VulnerableBank.sol）
+function withdraw(uint256 _amount) public {
+    require(balances[msg.sender] >= _amount);  // 1. Checks ✅
+    
+    msg.sender.call{value: _amount}("");       // 2. Interactions ❌ 先交互！
+    
+    balances[msg.sender] -= _amount;           // 3. Effects ❌ 后更新状态！
+}
+
+// ✅ 正确的顺序（CEI 模式）
+function withdraw(uint256 _amount) public {
+    require(balances[msg.sender] >= _amount);  // 1. Checks
+    
+    balances[msg.sender] -= _amount;           // 2. Effects 先更新状态！
+    
+    msg.sender.call{value: _amount}("");       // 3. Interactions 后交互！
+}
+```
+
+**重入攻击利用了状态更新的时间差**：
+- ✅ 第1次检查通过（余额 = 1 ETH）
+- 💸 转账触发 `receive()`
+- 🔥 在余额更新**之前**再次调用 `withdraw()`
+- ✅ 第2次检查通过（余额仍是 1 ETH！）
+- 🔁 重复 119 次，直到 gas 耗尽或余额不足
+- 📉 调用栈回退时才批量更新余额
+- 💰 **攻击者用 1 ETH 偷走 118 ETH，获利 11,700%！**
+
 ### 💻 攻击合约关键代码
 
 ```solidity

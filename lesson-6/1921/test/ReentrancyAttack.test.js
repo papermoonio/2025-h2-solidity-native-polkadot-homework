@@ -19,11 +19,11 @@ describe("Reentrancy Attack Demo", function () {
     console.log("VulnerableBank 部署地址:", await vulnerableBank.getAddress());
 
     // 2. 受害者存款（模拟银行有钱）
-    await vulnerableBank.connect(victim1).deposit({ value: ethers.parseEther("3") });
+    await vulnerableBank.connect(victim1).deposit({ value: ethers.parseEther("300") });
     await vulnerableBank.connect(victim2).deposit({ value: ethers.parseEther("3") });
 
     console.log("\n=== 受害者存款 ===");
-    console.log("Victim1 存入: 3 ETH");
+    console.log("Victim1 存入: 300 ETH");
     console.log("Victim2 存入: 3 ETH");
     console.log("银行总余额:", ethers.formatEther(await vulnerableBank.getBalance()), "ETH");
 
@@ -113,21 +113,31 @@ describe("Reentrancy Attack Demo", function () {
 
     console.log("\n=== 攻击后受害者尝试取款 ===");
 
-    // 攻击后，Victim1 尝试取款
-    const victim1EthBefore = await ethers.provider.getBalance(victim1.address);
+    // 攻击后，Victim1 尝试取出部分余额
+    const bankBalanceBeforeWithdraw = await vulnerableBank.getBalance();
+    console.log("银行实际剩余:", ethers.formatEther(bankBalanceBeforeWithdraw), "ETH");
+    console.log("Victim1 存款记录: 300.0 ETH");
+    console.log("Victim1 尝试取出: 185.0 ETH (银行剩余的全部)");
     
-    const tx = await vulnerableBank.connect(victim1).withdraw(ethers.parseEther("3"));
-    await tx.wait();
+    const victim1EthBefore = await ethers.provider.getBalance(victim1.address);
+    const tx = await vulnerableBank.connect(victim1).withdraw(ethers.parseEther("185"));
+    const receipt = await tx.wait();
+    const gasUsed = receipt.gasUsed * receipt.gasPrice;
     
     const victim1EthAfter = await ethers.provider.getBalance(victim1.address);
-    const victim1ActualReceived = victim1EthAfter - victim1EthBefore;
+    const victim1ActualReceived = victim1EthAfter - victim1EthBefore + gasUsed;
     
-    console.log("Victim1 尝试取出: 3.0 ETH");
-    console.log("Victim1 实际收到: ~" + ethers.formatEther(victim1ActualReceived + ethers.parseEther("0.001")).substring(0, 6), "ETH (包含 gas 费)");
-    console.log("⚠️  银行只有 1 ETH，Victim1 损失了 2 ETH！");
+    console.log("Victim1 实际收到:", ethers.formatEther(victim1ActualReceived), "ETH");
+    
+    const victim1Loss = ethers.parseEther("300") - ethers.parseEther("185");
+    console.log("⚠️  Victim1 损失了:", ethers.formatEther(victim1Loss), "ETH（无法取回）");
     
     const victim1BalanceFinal = await vulnerableBank.getUserBalance(victim1.address);
-    console.log("Victim1 账户余额已清零:", ethers.formatEther(victim1BalanceFinal), "ETH");
+    console.log("Victim1 账户剩余余额:", ethers.formatEther(victim1BalanceFinal), "ETH");
+    
+    const bankBalanceFinal = await vulnerableBank.getBalance();
+    console.log("银行最终余额:", ethers.formatEther(bankBalanceFinal), "ETH");
+    console.log("😭 Victim2 的 3 ETH 完全无法取回！");
 
     console.log("\n😭 由于重入攻击，受害者遭受实际损失！");
   });
