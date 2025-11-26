@@ -133,11 +133,13 @@ describe("Reentrancy Attack Demo", function () {
     console.log("⚠️  Victim1 损失了:", ethers.formatEther(victim1Loss), "ETH（无法取回）");
     
     const victim1BalanceFinal = await vulnerableBank.getUserBalance(victim1.address);
-    console.log("Victim1 账户剩余余额:", ethers.formatEther(victim1BalanceFinal), "ETH");
-    
     const bankBalanceFinal = await vulnerableBank.getBalance();
-    console.log("银行最终余额:", ethers.formatEther(bankBalanceFinal), "ETH");
-    console.log("😭 Victim2 的 3 ETH 完全无法取回！");
+    
+    console.log("\n=== 💔 最终状态 ===");
+    console.log("Victim1 在银行的存款记录:", ethers.formatEther(victim1BalanceFinal), "ETH (账面余额)");
+    console.log("银行实际剩余 ETH:", ethers.formatEther(bankBalanceFinal), "ETH");
+    console.log("❌ Victim1 的账面余额 " + ethers.formatEther(victim1BalanceFinal) + " ETH 永远无法取出（银行已空）");
+    console.log("😭 Victim2 的 3 ETH 也完全无法取回！");
 
     console.log("\n😭 由于重入攻击，受害者遭受实际损失！");
   });
