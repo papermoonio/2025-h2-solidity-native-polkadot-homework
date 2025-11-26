@@ -4,14 +4,11 @@ const { ethers } = require("hardhat");
 describe("Reentrancy Attack Demo", function () {
   let vulnerableBank;
   let attacker;
-  let owner;
-  let victim1;// Question1: how to set the address of victim1?
-  let victim2;
-  let attackerAccount;
+  let owner, attackerAccount, victim1, victim2;
 
   beforeEach(async function () {
     // 获取测试账户
-    [owner, victim1, victim2, attackerAccount] = await ethers.getSigners();
+    [owner, attackerAccount, victim1, victim2] = await ethers.getSigners();
 
     // 1. 部署有漏洞的银行合约
     const VulnerableBank = await ethers.getContractFactory("VulnerableBank");
@@ -22,12 +19,12 @@ describe("Reentrancy Attack Demo", function () {
     console.log("VulnerableBank 部署地址:", await vulnerableBank.getAddress());
 
     // 2. 受害者存款（模拟银行有钱）
-    await vulnerableBank.connect(victim1).deposit({ value: ethers.parseEther("2") });
-    await vulnerableBank.connect(victim2).deposit({ value: ethers.parseEther("2") });
+    await vulnerableBank.connect(victim1).deposit({ value: ethers.parseEther("3") });
+    await vulnerableBank.connect(victim2).deposit({ value: ethers.parseEther("3") });
 
     console.log("\n=== 受害者存款 ===");
-    console.log("Victim1 存入: 2 ETH");
-    console.log("Victim2 存入: 2 ETH");
+    console.log("Victim1 存入: 3 ETH");
+    console.log("Victim2 存入: 3 ETH");
     console.log("银行总余额:", ethers.formatEther(await vulnerableBank.getBalance()), "ETH");
 
     // 3. 部署攻击合约
@@ -52,15 +49,11 @@ describe("Reentrancy Attack Demo", function () {
     console.log("\n=== 🚨 发起攻击！ ===");
     console.log("攻击者投入: 1 ETH");
     
-    try {
-      const tx = await attacker.connect(attackerAccount).attack({ 
-        value: ethers.parseEther("1"),
-        gasLimit: 10000000 // 增加 gas limit
-      });
-      await tx.wait();
-    } catch (error) {
-      console.log("⚠️  攻击过程中出现错误（这是预期的，因为 gas 或余额限制）");
-    }
+    // 执行攻击
+    const tx = await attacker.connect(attackerAccount).attack({ 
+      value: ethers.parseEther("1")
+    });
+    await tx.wait();
 
     // 攻击后的状态
     const bankBalanceAfter = await vulnerableBank.getBalance();
@@ -71,20 +64,19 @@ describe("Reentrancy Attack Demo", function () {
     console.log("银行余额:", ethers.formatEther(bankBalanceAfter), "ETH");
     console.log("攻击者余额:", ethers.formatEther(attackerBalanceAfter), "ETH");
     console.log("重入次数:", attackCount.toString(), "次");
-    console.log("攻击者获利:", ethers.formatEther(attackerBalanceAfter - attackerBalanceBefore), "ETH");
+    console.log("攻击者获利:", ethers.formatEther(attackerBalanceAfter - ethers.parseEther("1")), "ETH");
 
-    // 验证攻击效果
-    console.log("\n=== ✅ 攻击结果验证 ===");
+    // 验证攻击成功
+    console.log("\n=== ✅ 攻击成功验证 ===");
     
     // 关键验证：重入攻击确实发生了！
-    expect(attackCount).to.be.greaterThan(1); // 发生了多次重入
+    expect(attackCount).to.be.greaterThan(1);
     console.log("✅ 重入攻击发生了", attackCount.toString(), "次！");
     
-    // 验证攻击者确实获得了额外的 ETH（即使没有完全掏空）
-    if (attackerBalanceAfter > attackerBalanceBefore) {
-      console.log("✅ 攻击者成功盗取了", ethers.formatEther(attackerBalanceAfter - attackerBalanceBefore), "ETH！");
-      console.log("✅ 银行剩余:", ethers.formatEther(bankBalanceAfter), "ETH");
-    }
+    // 验证攻击者盗取了 ETH
+    expect(attackerBalanceAfter).to.be.greaterThan(ethers.parseEther("1"));
+    console.log("✅ 攻击者用 1 ETH 盗取了", ethers.formatEther(attackerBalanceAfter - ethers.parseEther("1")), "ETH！");
+    console.log("✅ 银行剩余:", ethers.formatEther(bankBalanceAfter), "ETH");
   });
 
   it("应该显示受害者的损失", async function () {
@@ -97,26 +89,24 @@ describe("Reentrancy Attack Demo", function () {
     console.log("Victim2 余额:", ethers.formatEther(victim2BalanceBefore), "ETH");
 
     // 发起攻击
-    try {
-      await attacker.connect(attackerAccount).attack({ 
-        value: ethers.parseEther("1"),
-        gasLimit: 10000000
-      });
-    } catch (error) {
-      console.log("⚠️  攻击过程中出现错误（预期的）");
-    }
+    await attacker.connect(attackerAccount).attack({ 
+      value: ethers.parseEther("1")
+    });
+
+    const bankBalanceAfter = await vulnerableBank.getBalance();
+    console.log("\n=== 攻击后银行余额 ===");
+    console.log("银行剩余:", ethers.formatEther(bankBalanceAfter), "ETH");
 
     console.log("\n=== 攻击后受害者尝试取款 ===");
 
     // 攻击后，受害者尝试取款
     try {
-      await vulnerableBank.connect(victim1).withdraw(ethers.parseEther("2"));
+      await vulnerableBank.connect(victim1).withdraw(ethers.parseEther("3"));
       console.log("❌ Victim1 取款不应该成功");
     } catch (error) {
-      console.log("✅ Victim1 无法取款（银行已被掏空）");
-      console.log("错误信息:", error.message.includes("Transfer failed") ? "Transfer failed" : "其他错误");
+      console.log("✅ Victim1 无法取款（银行余额不足）");
     }
 
-    console.log("😭 受害者的钱永远拿不回来了!");
+    console.log("😭 受害者的钱被盗了!");
   });
 });

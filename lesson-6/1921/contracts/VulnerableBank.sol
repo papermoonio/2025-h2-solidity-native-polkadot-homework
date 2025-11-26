@@ -33,12 +33,16 @@ contract VulnerableBank {
         require(balances[msg.sender] >= _amount, "Insufficient balance");
         
         // 2. ⚠️ 漏洞：先发送 ETH（这里会触发接收者的 receive/fallback 函数）
-        // 使用低级call，转发所有gas，允许重入
-        (bool success, ) = payable(msg.sender).call{value: _amount, gas: gasleft()}("");
-        require(success, "Transfer failed");
+        // 使用 call 而不是 transfer，这样会转发足够的 gas 用于重入
+        msg.sender.call{value: _amount}("");
+        // ⚠️ 注意：为了演示目的，这里不检查返回值
+        // 实际生产环境应该加上: (bool sent, ) = ... 和 require(sent, "Failed to send Ether");
         
         // 3. ⚠️ 漏洞：后更新余额（攻击者可以在第2步重入调用 withdraw）
-        balances[msg.sender] -= _amount;
+        // 使用 unchecked 允许下溢（仅用于演示目的）
+        unchecked {
+            balances[msg.sender] -= _amount;
+        }
         
         emit Withdraw(msg.sender, _amount);
     }
