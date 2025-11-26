@@ -39,5 +39,5 @@ jobs:
           npm install dockerode
         
       - name: Test
-        run: npm hardhat test test/*.ts --network local
+        run: npx hardhat test test/*.ts --network local
         working-directory: lesson-6/491/AttackPractice
