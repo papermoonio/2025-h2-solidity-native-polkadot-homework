@@ -1,0 +1,23 @@
+{
+  "name": "lesson4-delegatecall-demo",
+  "version": "1.0.0",
+  "description": "Lesson 4: DelegateCall Proxy Pattern Demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "deploy": "hardhat run scripts/simple-deploy.js",
+    "clean": "hardhat clean"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.18"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0"
+  },
+  "keywords": ["solidity", "delegatecall", "proxy", "smart-contracts"],
+  "author": "Student 1921",
+  "license": "MIT"
+}
