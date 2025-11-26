@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 /// Minimal vulnerable ERC20-like token to demonstrate short-address mis-decode.
 /// NOTE: This intentionally uses calldataload without checking msg.data.length
 /// to reproduce "short address" behavior for educational/test only.
-contract VulnerableTestToken {
+contract NewCompiledVulnerableToken {
     string public name = "VulnToken";
     string public symbol = "VULN";
     uint8 public decimals = 18;
@@ -42,30 +42,6 @@ contract VulnerableTestToken {
         balanceOf[msg.sender] -= amt;
         balanceOf[toAddr] += amt;
 
-        return true;
-    }
-}
-
-/// FixedToken demonstrates a simple defense: enforce msg.data length exactly as ABI expects.
-contract FixedToken {
-    string public name = "FixedToken";
-    string public symbol = "FIX";
-    uint8 public decimals = 18;
-
-    mapping(address => uint256) public balanceOf;
-
-    constructor() {}
-
-    function mint(address to, uint256 amt) external {
-        balanceOf[to] += amt;
-    }
-
-    function transfer(address to, uint256 amt) external returns (bool) {
-        // Check calldata length: 4(selector) + 32(address) + 32(uint256) = 68 bytes
-        // require(msg.data.length == 4 + 32 + 32, "bad calldata length");
-        require(balanceOf[msg.sender] >= amt, "insufficient");
-        balanceOf[msg.sender] -= amt;
-        balanceOf[to] += amt;
         return true;
     }
 }
