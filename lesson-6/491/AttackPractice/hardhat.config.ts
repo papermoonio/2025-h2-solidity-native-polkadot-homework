@@ -1,7 +1,10 @@
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { configVariable, defineConfig } from "hardhat/config";
+import dotenv from "dotenv";
 
 import type { HardhatUserConfig } from "hardhat/config";
+
+dotenv.config();
 
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
@@ -50,7 +53,7 @@ export default defineConfig({
       type: "http",
       chainType: "l1",
       url: "http://localhost:8545",
-      accounts: [configVariable("LOCALHOST_PRIVATE_KEY")],
+      accounts: [process.env.LOCALHOST_PRIVATE_KEY ?? ""],
     },
 
     sepolia: {
