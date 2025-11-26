@@ -1,7 +1,5 @@
 name: CI
 
-defaults: &default-home
-  working-directory: lesson-6/491/AttackPractice
 on:
   push:
     branches: [ "main" ]
@@ -23,7 +21,7 @@ jobs:
           node-version: "24"
           
       - name: Install zsh
-        <<: *default-home
+        working-directory: lesson-6/491/AttackPractice
         run: |
           sudo apt-get update
           sudo apt-get install -y zsh
@@ -35,11 +33,11 @@ jobs:
         run: zsh ./scripts/start-revive-rpc.sh
         
       - name: Install dependencies
-        <<: *default-home
+        working-directory: lesson-6/491/AttackPractice
         run: |
           pnpm install
           pnpm install dockerode
         
       - name: Test
         run: pnpm hardhat test/*ts --network local
-        <<: *default-home
+        working-directory: lesson-6/491/AttackPractice
