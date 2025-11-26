@@ -1,0 +1,45 @@
+name: CI
+
+defaults: &default-home
+  working-directory: lesson-6/491/AttackPractice
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "lesson-6/491/AttackPractice/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "24"
+          
+      - name: Install zsh
+        <<: *default-home
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+          pwd
+          
+
+      - name: Run script with zsh
+        working-directory: lesson-5/491/uniswap-v2-polkadot/
+        run: zsh ./scripts/start-revive-rpc.sh
+        
+      - name: Install dependencies
+        <<: *default-home
+        run: |
+          pnpm install
+          pnpm install dockerode
+        
+      - name: Test
+        run: pnpm hardhat test/*ts --network local
+        <<: *default-home
