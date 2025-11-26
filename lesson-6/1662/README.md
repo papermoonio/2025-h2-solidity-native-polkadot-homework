@@ -3,6 +3,7 @@
 ### 攻击逻辑
 攻击逻辑：攻击者先存入资金后调用 withdraw，受害合约在发送 ETH 时触发攻击者的 receive 或 fallback，再次重入 withdraw，在受害者尚未更新余额前反复盗取资金。
 
+<img width="2680" height="1932" alt="image" src="https://github.com/user-attachments/assets/dd6e0073-8364-4294-8a4f-413fccf909ce" />
 
 ### 优化措施
 * 使用 检查-效果-交互模式
