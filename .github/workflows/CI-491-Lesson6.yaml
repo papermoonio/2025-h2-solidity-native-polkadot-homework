@@ -35,9 +35,9 @@ jobs:
       - name: Install dependencies
         working-directory: lesson-6/491/AttackPractice
         run: |
-          pnpm install
-          pnpm install dockerode
+          npm install
+          npm install dockerode
         
       - name: Test
-        run: pnpm hardhat test/*ts --network local
+        run: npm hardhat test/*ts --network local
         working-directory: lesson-6/491/AttackPractice
