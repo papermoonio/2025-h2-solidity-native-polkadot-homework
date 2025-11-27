@@ -507,117 +507,145 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* 连接状态 */}
-            <div className={`border rounded-lg p-3 ${
+          <div className="space-y-5">
+            {/* 连接状态卡片 */}
+            <div className={`card border-2 ${
               wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
-                ? 'bg-green-50 border-green-200'
-                : 'bg-red-50 border-red-200'
+                ? 'border-green-400 bg-gradient-to-br from-green-50 to-emerald-50'
+                : 'border-red-400 bg-gradient-to-br from-red-50 to-orange-50'
             }`}>
-              <div className="flex justify-between items-center mb-2">
-                <p className={`text-sm font-semibold ${
-                  wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
-                    ? 'text-green-700'
-                    : 'text-red-700'
-                }`}>
-                  {wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
-                    ? '✅ 已连接到 MetaMask 🦊'
-                    : '⚠️ 网络错误'}
-                </p>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full animate-pulse ${
+                    wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId ? 'bg-green-500' : 'bg-red-500'
+                  }`}></div>
+                  <div>
+                    <p className={`text-sm font-bold ${
+                      wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                        ? 'text-green-700'
+                        : 'text-red-700'
+                    }`}>
+                      {wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                        ? '✅ MetaMask 已连接'
+                        : '⚠️ 网络错误'}
+                    </p>
+                    <p className={`text-xs mt-0.5 ${
+                      wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                        ? '🌐 Sepolia 测试网'
+                        : `Chain ID: ${wallet.chainId}`}
+                    </p>
+                  </div>
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={switchAccount}
                     disabled={isConnecting}
-                    className="text-xs text-blue-600 hover:underline disabled:text-gray-400"
+                    className="px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    🔄 切换账户
+                    🔄 切换
                   </button>
                   <button
                     onClick={disconnectWallet}
-                    className="text-xs text-red-600 hover:underline"
+                    className="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
                   >
                     断开
                   </button>
                 </div>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className={wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId ? 'text-green-600' : 'text-red-600'}>
-                  {wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
-                    ? '🌐 Sepolia测试网 (Chain ID: 11155111)'
-                    : `❌ 当前网络: Chain ID ${wallet.chainId} - 请切换到Sepolia`}
-                </span>
-                {wallet.chainId !== SEPOLIA_NETWORK_CONFIG.chainId && (
-                  <button
-                    onClick={switchToSepolia}
-                    className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                  >
-                    切换网络
-                  </button>
-                )}
+              {wallet.chainId !== SEPOLIA_NETWORK_CONFIG.chainId && (
+                <button
+                  onClick={switchToSepolia}
+                  className="w-full mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors"
+                >
+                  🔄 切换到 Sepolia 测试网
+                </button>
+              )}
+            </div>
+
+            {/* 账户信息卡片 */}
+            <div className="card bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <span className="text-xl">👤</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800">账户信息</h3>
+                  <p className="text-xs text-gray-500 font-mono">
+                    {wallet.account?.slice(0, 6)}...{wallet.account?.slice(-4)}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-purple-100">
+                  <p className="text-xs text-gray-500 mb-1">以太币余额</p>
+                  <p className="text-lg font-bold text-gray-800">{parseFloat(wallet.balance).toFixed(4)}</p>
+                  <p className="text-xs text-gray-500">ETH</p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-pink-100">
+                  <p className="text-xs text-gray-500 mb-1">代币余额</p>
+                  <p className="text-lg font-bold text-gray-800">{parseFloat(wallet.tokenBalance).toFixed(2)}</p>
+                  <p className="text-xs text-gray-500">S1921</p>
+                </div>
               </div>
             </div>
 
-            {/* 账户信息 */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-700 mb-2">账户信息</h3>
-              <p className="text-sm text-gray-600">
-                地址: {wallet.account?.slice(0, 6)}...{wallet.account?.slice(-4)}
-              </p>
-              <p className="text-sm text-gray-600">
-                ETH: {parseFloat(wallet.balance).toFixed(4)}
-              </p>
-              <p className="text-sm text-gray-600">
-                S1921: {parseFloat(wallet.tokenBalance).toFixed(2)}
-              </p>
-            </div>
-
-            {/* Mint设置 */}
-            {wallet.mintInterval > 0 && (
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-700 mb-2">Mint设置</h3>
-                <p className="text-sm text-gray-600">
-                  冷却间隔: {formatTime(wallet.mintInterval)}
-                </p>
-                <p className="text-sm text-gray-600">
-                  每次铸造: 1 S1921 代币
-                </p>
+            {/* 铸造功能卡片 */}
+            <div className="card bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center glow">
+                  <span className="text-xl">🪙</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800">铸造代币</h3>
+                  <p className="text-xs text-gray-500">每次铸造 1 S1921 代币</p>
+                </div>
               </div>
-            )}
-
-            {/* 铸造功能 */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-700 mb-4">🦊 MetaMask铸造</h3>
               
               {(wallet.canMint && localRemainingTime <= 0) ? (
                 <button
                   onClick={mintToken}
                   disabled={isLoading}
-                  className={`w-full font-semibold py-3 px-6 rounded-lg transition-colors ${
+                  className={`w-full font-bold py-4 px-6 rounded-xl transition-all transform ${
                     isLoading 
                       ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-green-500 hover:bg-green-600 text-white'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl hover:scale-105'
                   }`}
                 >
-                  {isLoading ? '🦊 MetaMask铸造中...' : '🦊 使用MetaMask铸造 1 S1921'}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>🦊 铸造中...</span>
+                    </div>
+                  ) : (
+                    <span>🦊 立即铸造 1 S1921</span>
+                  )}
                 </button>
               ) : (
                 <div>
-                  <p className="text-red-600 text-sm mb-2">
-                    冷却中，剩余: {formatTime(localRemainingTime)}
-                  </p>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div 
-                      className="bg-red-400 h-2 rounded-full transition-all duration-1000"
-                      style={{
-                        width: `${Math.max(0, 100 - (localRemainingTime / wallet.mintInterval * 100))}%`
-                      }}
-                    />
+                  <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 mb-3 border border-orange-100">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-semibold text-gray-700">冷却中</span>
+                      <span className="text-sm font-bold text-orange-600">{formatTime(localRemainingTime)}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-orange-400 to-yellow-500 h-3 rounded-full transition-all duration-1000 shadow-inner"
+                        style={{
+                          width: `${Math.max(0, 100 - (localRemainingTime / wallet.mintInterval * 100))}%`
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2 text-center">
+                      冷却间隔: {formatTime(wallet.mintInterval)}
+                    </p>
                   </div>
                   <button
                     disabled
-                    className="w-full bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed"
+                    className="w-full bg-gray-300 text-gray-500 font-semibold py-4 px-6 rounded-xl cursor-not-allowed"
                   >
-                    {localRemainingTime <= 0 ? '🔄 准备中...' : '⏳ 等待冷却时间'}
+                    ⏳ 等待冷却时间
                   </button>
                 </div>
               )}
@@ -626,25 +654,39 @@ export default function Home() {
             {/* 添加代币按钮 */}
             <button
               onClick={addTokenToWallet}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
-              🦊 添加 S1921 到 MetaMask
+              <div className="flex items-center justify-center gap-2">
+                <span>🦊</span>
+                <span>添加 S1921 到 MetaMask</span>
+              </div>
             </button>
 
             {/* 最后交易信息 */}
             {lastTxHash && (
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h3 className="font-semibold text-gray-700 mb-2">🎉 最近交易</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  交易哈希: {lastTxHash.slice(0, 10)}...{lastTxHash.slice(-8)}
-                </p>
+              <div className="card bg-gradient-to-br from-green-50 to-teal-50 border border-green-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center">
+                    <span className="text-xl">🎉</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">交易成功</h3>
+                    <p className="text-xs text-gray-500">最近一笔交易</p>
+                  </div>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 mb-3 border border-green-100">
+                  <p className="text-xs text-gray-500 mb-1">交易哈希</p>
+                  <p className="text-sm font-mono font-semibold text-gray-800 break-all">
+                    {lastTxHash.slice(0, 10)}...{lastTxHash.slice(-8)}
+                  </p>
+                </div>
                 <a
                   href={`https://sepolia.etherscan.io/tx/${lastTxHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline text-sm"
+                  className="block w-full text-center py-3 px-4 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
                 >
-                  🔗 在区块浏览器查看交易详情
+                  🔗 查看交易详情
                 </a>
               </div>
             )}
@@ -665,33 +707,61 @@ export default function Home() {
         )}
 
         {/* 项目信息 */}
-        <div className="mt-8 text-center text-xs text-gray-500">
-          <p>👨‍🎓 学号: 1921 | 🌐 Sepolia测试网</p>
-          <p>📝 合约: {CONTRACT_ADDRESS.slice(0, 10)}...</p>
-          <p>
-            🔗 <a 
-              href={`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              在区块浏览器查看合约
-            </a>
-          </p>
-          {wallet.isConnected && wallet.account && (
-            <p>
-              👤 <a 
-                href={`https://sepolia.etherscan.io/address/${wallet.account}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                查看我的交易记录
-              </a>
-            </p>
-          )}
-          <div className="mt-2 text-orange-600">
-            <strong>🦊 本DApp强制使用MetaMask钱包</strong>
+        <div className="mt-8 card bg-gradient-to-br from-gray-50 to-slate-100 border border-gray-200">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-gray-600 to-slate-700 rounded-xl mb-3">
+              <span className="text-2xl">📜</span>
+            </div>
+            <h3 className="font-bold text-gray-800 mb-4">项目信息</h3>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-center gap-2 text-gray-600">
+                <span>👨‍🎓</span>
+                <span className="font-semibold">学号:</span>
+                <span className="font-mono font-bold text-blue-600">1921</span>
+              </div>
+              
+              <div className="flex items-center justify-center gap-2 text-gray-600">
+                <span>🌐</span>
+                <span className="font-semibold">网络:</span>
+                <span className="font-mono">Sepolia 测试网</span>
+              </div>
+              
+              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 mt-3 border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1">合约地址</p>
+                <p className="font-mono text-xs font-semibold text-gray-700 break-all">
+                  {CONTRACT_ADDRESS}
+                </p>
+              </div>
+              
+              <div className="flex gap-2 mt-4">
+                <a 
+                  href={`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 py-2 px-3 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition-colors text-xs"
+                >
+                  🔗 查看合约
+                </a>
+                {wallet.isConnected && wallet.account && (
+                  <a 
+                    href={`https://sepolia.etherscan.io/address/${wallet.account}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2 px-3 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold rounded-lg transition-colors text-xs"
+                  >
+                    👤 我的交易
+                  </a>
+                )}
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                <span>🦊</span>
+                <span>Powered by MetaMask</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
