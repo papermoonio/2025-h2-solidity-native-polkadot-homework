@@ -1,0 +1,15 @@
+# 合约安全-重入攻击
+
+### 攻击逻辑
+攻击逻辑：攻击者先存入资金后调用 withdraw，受害合约在发送 ETH 时触发攻击者的 receive 或 fallback，再次重入 withdraw，在受害者尚未更新余额前反复盗取资金。
+
+<img width="2680" height="1932" alt="image" src="https://github.com/user-attachments/assets/dd6e0073-8364-4294-8a4f-413fccf909ce" />
+
+### 优化措施
+* 使用 检查-效果-交互模式
+* 使用 ReentrancyGuard 合约锁定 withdraw 函数，防止重入调用
+* 限制外部调用和最小化可被调用回调函数的逻辑
+
+### 免责说明
+本项目所示的智能合约攻击示例、攻击代码与分析内容 仅用于安全研究、教育学习与防御演练目的。
+请勿将相关技术用于任何未经授权的系统、合约或项目。
