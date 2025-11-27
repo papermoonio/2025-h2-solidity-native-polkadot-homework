@@ -7,7 +7,10 @@
     "build": "next build",
     "export": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "./deploy.sh",
+    "deploy:cloudflare": "npm run build && wrangler pages deploy out --project-name=mintable-erc20-dapp-1921",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "ethers": "^6.15.0",

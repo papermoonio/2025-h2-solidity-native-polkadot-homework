@@ -13,6 +13,7 @@ interface WalletState {
   canMint: boolean;
   remainingTime: number;
   mintInterval: number;
+  chainId: number | null;
 }
 
 export default function Home() {
@@ -23,7 +24,8 @@ export default function Home() {
     tokenBalance: '0',
     canMint: false,
     remainingTime: 0,
-    mintInterval: 0
+    mintInterval: 0,
+    chainId: null
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +41,27 @@ export default function Home() {
     return `${mins}分${secs}秒`;
   };
 
+  // 检查当前网络
+  const checkNetwork = async () => {
+    try {
+      if (typeof window === 'undefined' || !window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const currentChainId = parseInt(chainId, 16);
+      
+      if (currentChainId !== SEPOLIA_NETWORK_CONFIG.chainId) {
+        setMessage('⚠️ 请切换到Sepolia测试网...');
+        await switchToSepolia();
+        return true;
+      }
+      return true;
+    } catch (error) {
+      console.error('网络检查失败:', error);
+      return false;
+    }
+  };
+
   // 简单直接的MetaMask连接
   const connectWallet = async () => {
     if (isConnecting) return;
@@ -48,7 +71,7 @@ export default function Home() {
     
     try {
       // 直接使用window.ethereum
-      if (!window.ethereum) {
+      if (typeof window === 'undefined' || !window.ethereum) {
         throw new Error('请安装MetaMask扩展');
       }
 
@@ -64,11 +87,26 @@ export default function Home() {
       const account = accounts[0];
       console.log('✅ 连接成功:', account);
       
+      // 检查网络
+      setMessage('🔍 检查网络...');
+      const networkOk = await checkNetwork();
+      if (!networkOk) {
+        throw new Error('网络切换失败，请手动切换到Sepolia测试网');
+      }
+      
+      // 获取当前网络ID
+      if (!window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const currentChainId = parseInt(chainId, 16);
+      
       // 更新钱包状态
       setWallet(prev => ({ 
         ...prev, 
         isConnected: true, 
-        account 
+        account,
+        chainId: currentChainId
       }));
       
       setMessage('✅ 连接成功！加载数据中...');
@@ -109,8 +147,29 @@ export default function Home() {
   // 加载账户数据
   const loadAccountData = async (account: string) => {
     try {
+      // 再次确认网络
+      if (typeof window === 'undefined' || !window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const currentChainId = parseInt(chainId, 16);
+      
+      if (currentChainId !== SEPOLIA_NETWORK_CONFIG.chainId) {
+        throw new Error(`请切换到Sepolia测试网 (当前网络: ${currentChainId})`);
+      }
+
       // 直接使用window.ethereum
+      if (!window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
       const ethersProvider = new ethers.BrowserProvider(window.ethereum);
+      
+      // 验证合约代码是否存在
+      const code = await ethersProvider.getCode(CONTRACT_ADDRESS);
+      if (code === '0x') {
+        throw new Error('合约在当前网络上不存在，请确保已连接到Sepolia测试网');
+      }
+      
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, ethersProvider);
 
       // 加载基本数据
@@ -126,7 +185,8 @@ export default function Home() {
         tokenBalance: ethers.formatUnits(tokenBalance, 18),
         canMint,
         remainingTime: Number(remainingTime),
-        mintInterval: Number(mintInterval)
+        mintInterval: Number(mintInterval),
+        chainId: currentChainId
       }));
 
       // 初始化本地倒计时
@@ -147,6 +207,9 @@ export default function Home() {
       setMessage('🦊 准备交易...');
 
       // 直接使用window.ethereum
+      if (typeof window === 'undefined' || !window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
       const ethersProvider = new ethers.BrowserProvider(window.ethereum);
       const signer = await ethersProvider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
@@ -188,6 +251,9 @@ export default function Home() {
       setMessage('🦊 添加代币到MetaMask...');
 
       // 直接调用MetaMask API
+      if (typeof window === 'undefined' || !window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
       await window.ethereum.request({
         method: 'wallet_watchAsset',
         params: {
@@ -220,10 +286,67 @@ export default function Home() {
       tokenBalance: '0',
       canMint: false,
       remainingTime: 0,
-      mintInterval: 0
+      mintInterval: 0,
+      chainId: null
     });
-    setMessage('');
+    setMessage('👋 已断开连接。如需更换钱包，请在 MetaMask 中切换账户或点击“切换账户”按钮');
     resetMetaMaskProvider();
+  };
+
+  // 切换账户
+  const switchAccount = async () => {
+    if (isConnecting) return;
+    
+    setIsConnecting(true);
+    setMessage('🔄 打开 MetaMask 选择账户...');
+    
+    try {
+      if (typeof window === 'undefined' || !window.ethereum) {
+        throw new Error('MetaMask not available');
+      }
+
+      // 使用 wallet_requestPermissions 强制弹出账户选择
+      await window.ethereum.request({
+        method: 'wallet_requestPermissions',
+        params: [{ eth_accounts: {} }]
+      });
+      
+      // 获取新选择的账户
+      const accounts = await window.ethereum.request({ 
+        method: 'eth_accounts' 
+      });
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error('未选择账户');
+      }
+
+      const newAccount = accounts[0];
+      console.log('🔄 切换到账户:', newAccount);
+      
+      // 检查网络
+      const networkOk = await checkNetwork();
+      if (!networkOk) {
+        throw new Error('网络切换失败');
+      }
+      
+      // 更新账户
+      setWallet(prev => ({ ...prev, account: newAccount }));
+      
+      // 加载新账户数据
+      setMessage('🔍 加载账户数据...');
+      await loadAccountData(newAccount);
+      
+      setMessage(`✅ 已切换到: ${newAccount.slice(0, 6)}...${newAccount.slice(-4)}`);
+    } catch (error: any) {
+      console.error('切换账户失败:', error);
+      if (error.code === 4001) {
+        setMessage('❌ 用户取消了切换');
+      } else {
+        setMessage(`❌ 切换失败: ${error.message}`);
+      }
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   // 定期刷新数据
@@ -237,24 +360,49 @@ export default function Home() {
     }
   }, [wallet.isConnected, wallet.account]);
 
-  // 监听账户变化
+  // 监听账户和网络变化
   useEffect(() => {
-    const provider = getMetaMaskProvider();
-    if (provider) {
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) {
-          disconnectWallet();
-        } else if (accounts[0] !== wallet.account) {
-          setWallet(prev => ({ ...prev, account: accounts[0] }));
-          loadAccountData(accounts[0]);
-        }
-      };
+    if (typeof window === 'undefined' || !window.ethereum) return;
 
-      provider.on('accountsChanged', handleAccountsChanged);
-      return () => {
-        provider.removeListener('accountsChanged', handleAccountsChanged);
-      };
-    }
+    const handleAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        disconnectWallet();
+      } else if (accounts[0] !== wallet.account) {
+        setWallet(prev => ({ ...prev, account: accounts[0] }));
+        loadAccountData(accounts[0]).catch(err => {
+          setMessage(`❌ 加载数据失败: ${err.message}`);
+        });
+      }
+    };
+
+    const handleChainChanged = (chainId: string) => {
+      console.log('网络切换到:', chainId);
+      const newChainId = parseInt(chainId, 16);
+      
+      if (newChainId !== SEPOLIA_NETWORK_CONFIG.chainId) {
+        setMessage('⚠️ 请切换回Sepolia测试网');
+        setWallet(prev => ({
+          ...prev,
+          balance: '0',
+          tokenBalance: '0',
+          canMint: false,
+          remainingTime: 0
+        }));
+      } else if (wallet.account) {
+        setMessage('✅ 已切换到Sepolia，重新加载数据...');
+        loadAccountData(wallet.account).catch(err => {
+          setMessage(`❌ 加载数据失败: ${err.message}`);
+        });
+      }
+    };
+
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    window.ethereum.on('chainChanged', handleChainChanged);
+    
+    return () => {
+      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      window.ethereum.removeListener('chainChanged', handleChainChanged);
+    };
   }, [wallet.account]);
 
   // 实时倒计时更新
@@ -361,16 +509,52 @@ export default function Home() {
         ) : (
           <div className="space-y-6">
             {/* 连接状态 */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex justify-between items-center">
-              <p className="text-green-700 text-sm">
-                ✅ 已连接到 MetaMask 🦊
-              </p>
-              <button
-                onClick={disconnectWallet}
-                className="text-xs text-red-600 hover:underline"
-              >
-                断开
-              </button>
+            <div className={`border rounded-lg p-3 ${
+              wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                ? 'bg-green-50 border-green-200'
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <div className="flex justify-between items-center mb-2">
+                <p className={`text-sm font-semibold ${
+                  wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                    ? 'text-green-700'
+                    : 'text-red-700'
+                }`}>
+                  {wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                    ? '✅ 已连接到 MetaMask 🦊'
+                    : '⚠️ 网络错误'}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={switchAccount}
+                    disabled={isConnecting}
+                    className="text-xs text-blue-600 hover:underline disabled:text-gray-400"
+                  >
+                    🔄 切换账户
+                  </button>
+                  <button
+                    onClick={disconnectWallet}
+                    className="text-xs text-red-600 hover:underline"
+                  >
+                    断开
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className={wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId ? 'text-green-600' : 'text-red-600'}>
+                  {wallet.chainId === SEPOLIA_NETWORK_CONFIG.chainId
+                    ? '🌐 Sepolia测试网 (Chain ID: 11155111)'
+                    : `❌ 当前网络: Chain ID ${wallet.chainId} - 请切换到Sepolia`}
+                </span>
+                {wallet.chainId !== SEPOLIA_NETWORK_CONFIG.chainId && (
+                  <button
+                    onClick={switchToSepolia}
+                    className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                  >
+                    切换网络
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 账户信息 */}
