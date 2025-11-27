@@ -3,7 +3,7 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  output: 'export', // 启用静态导出模式
+  output: 'out',// 启用静态导出模式
   images: {
     unoptimized: true, // Cloudflare Pages 需要禁用图片优化
   },
