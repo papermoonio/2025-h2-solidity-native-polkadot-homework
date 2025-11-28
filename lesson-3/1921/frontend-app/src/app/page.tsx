@@ -67,14 +67,25 @@ export default function Home() {
     if (isConnecting) return;
     
     setIsConnecting(true);
-    setMessage('🦊 连接MetaMask中...');
+    setMessage('🔗 连接钱包中...');
     
     try {
-      // 直接使用window.ethereum
-      if (typeof window === 'undefined' || !window.ethereum) {
-        throw new Error('请安装MetaMask扩展');
+      console.log('1. 开始连接钱包...');
+      
+      // 确保在浏览器环境
+      if (typeof window === 'undefined') {
+        throw new Error('请在浏览器中打开');
+      }
+      
+      console.log('2. 检查 window.ethereum:', !!window.ethereum);
+      
+      // 检查钱包
+      if (!window.ethereum) {
+        throw new Error('请安装 MetaMask 或其他 Web3 钱包');
       }
 
+      console.log('3. 请求账户授权...');
+      
       // 请求账户访问
       const accounts = await window.ethereum.request({ 
         method: 'eth_requestAccounts' 
@@ -117,11 +128,19 @@ export default function Home() {
       
     } catch (error: any) {
       console.error('连接失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        code: error.code,
+        name: error.name,
+        stack: error.stack
+      });
       
       if (error.code === 4001) {
         setMessage('❌ 用户取消了连接');
       } else if (error.code === -32002) {
-        setMessage('❌ MetaMask忙碌中，请稍后重试');
+        setMessage('❌ 钱包忙碌中，请稍后重试');
+      } else if (error.message?.includes('安装')) {
+        setMessage('❌ 请安装 MetaMask 或 Rabby 钱包');
       } else {
         setMessage(`❌ 连接失败: ${error.message || '未知错误'}`);
       }
@@ -359,12 +378,19 @@ export default function Home() {
       
       setMessage(`✅ 已切换到: ${newAccount.slice(0, 6)}...${newAccount.slice(-4)}`);
     } catch (error: any) {
-      // 用户取消操作，不显示错误
+      console.error('连接失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      
       if (error.code === 4001) {
-        setMessage('');
+        setMessage('❌ 用户拒绝了连接请求');
+      } else if (error.message?.includes('安装')) {
+        setMessage('❌ 请安装 MetaMask 或 Rabby 钱包');
       } else {
-        console.error('切换账户失败:', error);
-        setMessage(`❌ 切换失败: ${error.message}`);
+        setMessage(`❌ 连接失败: ${error.message || '未知错误'}`);
       }
     } finally {
       setIsConnecting(false);
