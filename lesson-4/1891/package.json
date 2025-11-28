@@ -1,0 +1,25 @@
+{
+    "name": "lesson-4-delegatecall-proxy",
+    "version": "1.0.0",
+    "description": "Delegatecall Proxy Pattern implementation",
+    "main": "index.js",
+    "scripts": {
+        "test": "hardhat test",
+        "compile": "hardhat compile",
+        "node": "hardhat node"
+    },
+    "keywords": [
+        "solidity",
+        "proxy",
+        "delegatecall",
+        "pattern"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "hardhat": "^2.19.0",
+        "chai": "^4.3.10",
+        "ethers": "^6.9.0"
+    }
+}
