@@ -77,7 +77,15 @@ export default function Home() {
         throw new Error('请在浏览器中打开');
       }
       
+      // 等待钱包注入完成
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       console.log('2. 检查 window.ethereum:', !!window.ethereum);
+      console.log('2.1 钱包信息:', {
+        isMetaMask: window.ethereum?.isMetaMask,
+        isRabby: window.ethereum?.isRabby,
+        isCoinbaseWallet: window.ethereum?.isCoinbaseWallet
+      });
       
       // 检查钱包
       if (!window.ethereum) {
