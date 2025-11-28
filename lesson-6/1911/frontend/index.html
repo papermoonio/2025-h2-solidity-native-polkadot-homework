@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>重入攻击演示</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; margin: 2rem; }
+      input, button { font-size: 14px; padding: 8px; margin-right: 8px; }
+      .row { margin-bottom: 12px; }
+      code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>VulnerableBank 重入攻击演示</h1>
+    <div class="row">
+      <button id="connect">连接钱包</button>
+      <span id="account"></span>
+    </div>
+    <div class="row">
+      <label>Bank 地址：</label>
+      <input id="bankAddr" size="64" placeholder="部署后填入 VulnerableBank 地址" />
+    </div>
+    <div class="row">
+      <label>Attacker 地址：</label>
+      <input id="attackerAddr" size="64" placeholder="部署后填入 ReentrancyAttacker 地址" />
+    </div>
+    <div class="row">
+      <button id="bankBal">查询 Bank 余额</button>
+      <button id="attackerBal">查询 Attacker 余额</button>
+      <div id="balances"></div>
+    </div>
+    <div class="row">
+      <input id="depositEth" type="text" placeholder="存款 ETH 数量，如 1" />
+      <button id="deposit">向 Bank 存款</button>
+    </div>
+    <div class="row">
+      <input id="withdrawEth" type="text" placeholder="提款 ETH 数量，如 0.1" />
+      <button id="withdraw">从 Bank 提款（演示基线）</button>
+    </div>
+    <div class="row">
+      <input id="attackEth" type="text" placeholder="攻击启动金额，如 1" />
+      <button id="attack">启动重入攻击</button>
+    </div>
+    <pre id="log"></pre>
+
+    <script type="module">
+      import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.13.2/+esm";
+
+      const logEl = document.getElementById('log');
+      const log = (msg) => { logEl.textContent += msg + "\n"; };
+
+      let provider, signer;
+      document.getElementById('connect').onclick = async () => {
+        if (!window.ethereum) return alert('请安装 MetaMask');
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        document.getElementById('account').textContent = `当前账户：${await signer.getAddress()}`;
+        log('已连接钱包');
+      };
+
+      const bankAbi = [
+        'function deposit() payable',
+        'function withdraw(uint256 amount)',
+        'function bankBalance() view returns (uint256)',
+        'event Deposited(address indexed account,uint256 amount,uint256 newBalance)',
+        'event Withdrawn(address indexed account,uint256 amount,uint256 remainingBankBalance)'
+      ];
+      const attackerAbi = [
+        'function attack() payable',
+        'function attackerBalance() view returns (uint256)',
+        'event AttackStarted(address indexed attacker,uint256 initialDeposit,uint256 bankBalanceBefore)',
+        'event AttackCompleted(uint256 totalReentered,uint256 bankBalanceAfter,uint256 attackerEthBalance)'
+      ];
+
+      const bankAddrEl = document.getElementById('bankAddr');
+      const attackerAddrEl = document.getElementById('attackerAddr');
+
+      const getBank = () => new ethers.Contract(bankAddrEl.value, bankAbi, signer);
+      const getAttacker = () => new ethers.Contract(attackerAddrEl.value, attackerAbi, signer);
+
+      document.getElementById('bankBal').onclick = async () => {
+        const bank = getBank();
+        const bal = await bank.bankBalance();
+        log(`Bank 余额：${ethers.formatEther(bal)} ETH`);
+      };
+      document.getElementById('attackerBal').onclick = async () => {
+        const attacker = getAttacker();
+        const bal = await attacker.attackerBalance();
+        log(`Attacker 余额：${ethers.formatEther(bal)} ETH`);
+      };
+
+      document.getElementById('deposit').onclick = async () => {
+        const bank = getBank();
+        const eth = document.getElementById('depositEth').value || '1';
+        const tx = await bank.deposit({ value: ethers.parseEther(eth) });
+        await tx.wait();
+        log(`存款 ${eth} ETH 完成`);
+      };
+
+      document.getElementById('withdraw').onclick = async () => {
+        const bank = getBank();
+        const eth = document.getElementById('withdrawEth').value || '0.1';
+        const tx = await bank.withdraw(ethers.parseEther(eth));
+        await tx.wait();
+        log(`提款 ${eth} ETH 完成`);
+      };
+
+      document.getElementById('attack').onclick = async () => {
+        const attacker = getAttacker();
+        const eth = document.getElementById('attackEth').value || '1';
+        const tx = await attacker.attack({ value: ethers.parseEther(eth) });
+        const rcpt = await tx.wait();
+        log(`攻击完成，区块号：${rcpt.blockNumber}`);
+      };
+    </script>
+  </body>
+</html>
+
