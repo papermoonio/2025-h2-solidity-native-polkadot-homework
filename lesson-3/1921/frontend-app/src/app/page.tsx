@@ -194,6 +194,12 @@ export default function Home() {
 
     } catch (error: any) {
       console.error('加载数据失败:', error);
+      
+      // 识别 RPC 限流错误
+      const errorMsg = error.message || error.reason || '未知错误';
+      if (errorMsg.includes('rate limit') || errorMsg.includes('429')) {
+        throw new Error('RPC 请求频率过高，请稍后再试');
+      }
       throw error;
     }
   };
@@ -238,7 +244,14 @@ export default function Home() {
         setMessage('');
       } else {
         console.error('铸造失败:', error);
-        setMessage(`❌ 铸造失败: ${error.reason || error.message || '未知错误'}`);
+        
+        // 识别 RPC 限流错误
+        const errorMsg = error.message || error.reason || '未知错误';
+        if (errorMsg.includes('rate limit') || errorMsg.includes('429')) {
+          setMessage('⚠️ RPC 请求频率过高，请稍后再试（建议等待 1-2 分钟）');
+        } else {
+          setMessage(`❌ 铸造失败: ${errorMsg}`);
+        }
       }
     } finally {
       setIsLoading(false);
