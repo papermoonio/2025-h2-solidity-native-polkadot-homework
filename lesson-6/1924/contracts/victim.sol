@@ -1,32 +1,24 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pragma solidity ^0.8.10;
-
- contract Dao {
+contract VulnerableBank {
     mapping(address => uint256) public balances;
 
-    function deposit() public payable {
-        require(msg.value >= 1 ether, "Deposits must be no less than 1 Ether");
+    function deposit() external payable {
         balances[msg.sender] += msg.value;
     }
 
-    function withdraw() public {
-        // Check user's balance
-        require(
-            balances[msg.sender] >= 1 ether,
-            "Insufficient funds.  Cannot withdraw"
-        );
-        uint256 bal = balances[msg.sender];
+    function withdraw(uint256 _amount) external {
+        require(balances[msg.sender] >= _amount, "Insufficient balance");
 
-        // Withdraw user's balance
-        (bool sent, ) = msg.sender.call{value: bal}("");
-        require(sent, "Failed to withdraw sender's balance");
+        // 漏洞点：先发钱，后减余额
+        (bool sent, ) = msg.sender.call{value: _amount}("");
+        require(sent, "Failed to send Ether");
 
-        // Update user's balance.
-        balances[msg.sender] = 0;
+        balances[msg.sender] -= _amount;
     }
 
-    function daoBalance() public view returns (uint256) {
+    function getBalance() external view returns (uint256) {
         return address(this).balance;
     }
 }

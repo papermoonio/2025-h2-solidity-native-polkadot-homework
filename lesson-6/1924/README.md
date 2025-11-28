@@ -27,7 +27,7 @@
 ⚠️ Dao after attack: 0.XX ETH
 🦹 Hacker balance: > 1 ETH
 ```
-攻击成功 ✔
+攻击成功 ✔_
 Dao 资金被重入攻击循环提走。
 ## 修复建议
 - 使用 Checks-Effects-Interactions 模式：先检查，先修改合约内部状态，最后才做外部调用。  
