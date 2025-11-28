@@ -1,0 +1,25 @@
+{
+  "name": "work2-erc20-hardhat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Homework 2: ERC20 implementation without external libraries, with tests",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:hardhat": "hardhat run scripts/deploy.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "chai": "^4.3.10",
+    "ethers": "^6.12.0",
+    "hardhat": "^2.22.7",
+    "mocha": "^10.4.0"
+  }
+}
+
+

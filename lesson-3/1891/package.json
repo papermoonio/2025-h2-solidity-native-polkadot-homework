@@ -1,0 +1,25 @@
+{
+    "name": "lesson-3-mintable-erc20",
+    "version": "1.0.0",
+    "description": "MintableERC20 implementation for Polkadot Solidity native",
+    "main": "index.js",
+    "scripts": {
+        "test": "../node_modules/.bin/hardhat test",
+        "compile": "../node_modules/.bin/hardhat compile",
+        "node": "../node_modules/.bin/hardhat node"
+    },
+    "keywords": [
+        "solidity",
+        "erc20",
+        "mintable",
+        "polkadot"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "hardhat": "^2.19.0",
+        "chai": "^4.3.10",
+        "ethers": "^6.9.0"
+    }
+}

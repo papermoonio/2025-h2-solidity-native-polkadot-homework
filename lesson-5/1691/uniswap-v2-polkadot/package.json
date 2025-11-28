@@ -1,0 +1,22 @@
+{
+  "name": "v2-core-polkadot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@parity/hardhat-polkadot": "^0.1.10",
+    "dotenv": "^17.2.1",
+    "hardhat": "^2.27.0",
+    "solc": "0.8.28"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

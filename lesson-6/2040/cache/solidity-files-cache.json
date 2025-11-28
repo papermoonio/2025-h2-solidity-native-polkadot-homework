@@ -1,0 +1,76 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/scott/2025-h2-solidity-native-polkadot-homework/lesson-6/2040/contracts/ReentrancyA.sol": {
+      "lastModificationDate": 1764205854624,
+      "contentHash": "32685897e80921d0c19372bdc90b69f1",
+      "sourceName": "contracts/ReentrancyA.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ReentrancyVulnerableBank"
+      ]
+    },
+    "/home/scott/2025-h2-solidity-native-polkadot-homework/lesson-6/2040/contracts/ReentrancyAttackerB.sol": {
+      "lastModificationDate": 1764206285112,
+      "contentHash": "a77164fb844d97f360adc084e291b977",
+      "sourceName": "contracts/ReentrancyAttackerB.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IVulnerableBank",
+        "ReentrancyAttacker"
+      ]
+    }
+  }
+}

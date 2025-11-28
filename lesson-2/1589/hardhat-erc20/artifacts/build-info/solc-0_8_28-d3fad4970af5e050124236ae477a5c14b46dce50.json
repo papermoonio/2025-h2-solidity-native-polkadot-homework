@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-d3fad4970af5e050124236ae477a5c14b46dce50",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/Counter.sol": "project/contracts/Counter.sol",
+    "contracts/ERC20.sol": "project/contracts/ERC20.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Counter.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.28;\n\ncontract Counter {\n  uint public x;\n\n  event Increment(uint by);\n\n  function inc() public {\n    x++;\n    emit Increment(1);\n  }\n\n  function incBy(uint by) public {\n    require(by > 0, \"incBy: increment should be positive\");\n    x += by;\n    emit Increment(by);\n  }\n}\n"
+      },
+      "project/contracts/ERC20.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.28;\n\ncontract ERC20 {\n  string public name;\n  string public symbol;\n  uint8 public decimals;\n  uint256 public totalSupply;\n\n  mapping(address => uint256) private balances;\n  mapping(address => mapping(address => uint256)) private allowances;\n\n  event Transfer(address indexed from, address indexed to, uint256 value);\n  event Approval(address indexed owner, address indexed spender, uint256 value);\n\n  constructor(string memory name_, string memory symbol_, uint256 initialSupply_) {\n    name = name_;\n    symbol = symbol_;\n    decimals = 18;\n    totalSupply = initialSupply_;\n    balances[msg.sender] = initialSupply_;\n    emit Transfer(address(0), msg.sender, initialSupply_);\n  }\n\n  function balanceOf(address account) public view returns (uint256) {\n    return balances[account];\n  }\n\n  function allowance(address owner, address spender) public view returns (uint256) {\n    return allowances[owner][spender];\n  }\n\n  function transfer(address to, uint256 amount) public returns (bool) {\n    require(to != address(0), \"transfer to zero address\");\n    uint256 fromBalance = balances[msg.sender];\n    require(fromBalance >= amount, \"insufficient balance\");\n    unchecked {\n      balances[msg.sender] = fromBalance - amount;\n    }\n    balances[to] += amount;\n    emit Transfer(msg.sender, to, amount);\n    return true;\n  }\n\n  function approve(address spender, uint256 amount) public returns (bool) {\n    require(spender != address(0), \"approve to zero address\");\n    allowances[msg.sender][spender] = amount;\n    emit Approval(msg.sender, spender, amount);\n    return true;\n  }\n\n  function transferFrom(address from, address to, uint256 amount) public returns (bool) {\n    require(from != address(0), \"transfer from zero address\");\n    require(to != address(0), \"transfer to zero address\");\n    uint256 fromBalance = balances[from];\n    require(fromBalance >= amount, \"insufficient balance\");\n    uint256 allowed = allowances[from][msg.sender];\n    require(allowed >= amount, \"insufficient allowance\");\n    unchecked {\n      allowances[from][msg.sender] = allowed - amount;\n      balances[from] = fromBalance - amount;\n    }\n    balances[to] += amount;\n    emit Transfer(from, to, amount);\n    return true;\n  }\n}"
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "mintable-erc20-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hardhat backend for MintableERC20 end-to-end demo",
+  "scripts": {
+    "node": "hardhat node",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "deploy:localhost": "node scripts/deploy.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.22.7"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.5",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.12.1",
+    "solc": "^0.8.30"
+  }
+}

@@ -1,0 +1,26 @@
+{
+    "name": "lesson-6-reentrancy-vulnerability",
+    "version": "1.0.0",
+    "description": "Reentrancy Attack Vulnerability Demonstration",
+    "main": "index.js",
+    "scripts": {
+        "test": "hardhat test",
+        "compile": "hardhat compile",
+        "node": "hardhat node"
+    },
+    "keywords": [
+        "solidity",
+        "vulnerability",
+        "reentrancy",
+        "security",
+        "attack"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "hardhat": "^2.19.0",
+        "chai": "^4.3.10",
+        "ethers": "^6.9.0"
+    }
+}

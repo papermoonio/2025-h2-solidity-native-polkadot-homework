@@ -1,0 +1,27 @@
+{
+  "name": "homework6-polkadot",
+  "version": "1.0.0",
+  "description": "智能合约重入漏洞演示 - Polkadot Asset Hub 版本",
+  "scripts": {
+    "test": "hardhat test",
+    "test:verbose": "hardhat test --verbose",
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network passetHub"
+  },
+  "keywords": [
+    "polkadot",
+    "solidity",
+    "reentrancy",
+    "vulnerability",
+    "security",
+    "smart-contract"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0",
+    "dotenv": "^16.0.0"
+  }
+}

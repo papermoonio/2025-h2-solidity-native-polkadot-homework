@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+
+# Build artifacts
+artifacts/
+artifacts-pvm/
+cache/
+cache-pvm/
+typechain-types/
+coverage/
+
+# Deployment files (keep only deployed_addresses.json)
+ignition/deployments/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
