@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "D:\\work\\learn\\2025-h2-solidity-native-polkadot-homework\\lesson-2\\1281\\contracts\\MyERC20.sol": {
-      "lastModificationDate": 1761961501147,
-      "contentHash": "596ffcfa4cff1af27683e3e9453b0314",
+      "lastModificationDate": 1764024570305,
+      "contentHash": "329390c97cc8b655368aba61d9580a43",
       "sourceName": "contracts/MyERC20.sol",
       "solcConfig": {
         "version": "0.8.24",
