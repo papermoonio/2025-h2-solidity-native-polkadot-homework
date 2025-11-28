@@ -44,6 +44,9 @@ const App = () => {
           case "0x7a69":
             networkName = "Local Hardhat Network";
             break;
+          case "0xaa36a7":
+            networkName = "Sepolia Testnet";
+            break;
           case "0x190f1b46":
             networkName = "PAsset Hub";
             break;
@@ -53,10 +56,13 @@ const App = () => {
         }
 
         setNetworkName(networkName);
-        
+
+        console.log('chainId', chainId)
+
         // 检查是否连接到本地Hardhat网络
+        // Chain ID 31337 (0x7a69) identifies the Hardhat network
         if (chainId !== "0x7a69") {
-          setConnectionError("Please connect to the Local Hardhat Network (localhost:8545)");
+          setConnectionError("⚠️ 合约部署在本地 Hardhat 网络，请切换钱包到 localhost:8545");
           setAccount(null);
           setConnected(false);
           return;

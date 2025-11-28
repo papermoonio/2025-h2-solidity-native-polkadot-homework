@@ -1,0 +1,1 @@
+const hre = require('hardhat'); async function main() { const signers = await hre.ethers.getSigners(); console.log('Number of signers:', signers.length); for (let i = 0; i < signers.length; i++) { console.log('Signer ' + i + ':', await signers[i].getAddress()); } } main().then(() => process.exit(0)).catch((error) => { console.error(error); process.exit(1); });
