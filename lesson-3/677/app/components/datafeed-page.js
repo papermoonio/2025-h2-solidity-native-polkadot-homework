@@ -1,0 +1,294 @@
+import React, { useState, useEffect } from "react";
+import { Button, Form, Table, Container } from "semantic-ui-react";
+import { tokenNames } from "../ethereum/tokenNames";
+import tokenInstance from "../ethereum/feed";
+
+const addresses = require("../ethereum/addresses");
+
+const DataFeed = ({ account }) => {
+  // State for token data, keyed by token address for efficient lookup.
+  const [tokenData, setTokenData] = useState({});
+  // State for loading indicators, keyed by token address.
+  const [loadingStates, setLoadingStates] = useState({});
+
+  // Fetches balance and minting details for a single token.
+  // Now returns the address to be used as a key.
+  /*
+  const getBalance = async (address) => {
+    try {
+      if (account?.slice(0, 2) === "0x") {
+        const contractInstance = tokenInstance(address);
+        console.log("balanceOf address:", contractInstance.balanceOf(account));
+        const [dec, mint, interval, lastMint, balance] = await Promise.all([
+          contractInstance.decimals(),
+          contractInstance.canMint(account),
+          contractInstance.interval(),
+          contractInstance.lastMintTime(account),
+          contractInstance.balanceOf(account)
+        ]);
+
+        const timeLeft = BigInt(interval) - (BigInt(Math.floor(Date.now() / 1000)) - BigInt(lastMint));
+
+        return {
+          address,
+          balance: (Number(balance) / (10 ** Number(dec))).toFixed(2),
+          mint,
+          timeLeft: timeLeft > 0 ? timeLeft.toString() : "0",
+        };
+      }
+      // Return a default state if no account is connected
+      return { address, balance: "0.00", mint: false, timeLeft: "0" };
+    } catch (error) {
+      console.error(`Error fetching data for token ${address}:`, error);
+      return { address, balance: "Error", mint: false, timeLeft: "0" };
+    }
+  };
+*/
+  const getBalance = async (address) => {
+    try {
+      console.log(`🔍 獲取代幣余額: ${address}, 賬戶: ${account}`);
+
+      if (!account || account.slice(0, 2) !== "0x") {
+        console.log("❌ 賬戶地址無效");
+        return { address, balance: "0.00", mint: false, timeLeft: "0", error: "Invalid account" };
+      }
+
+      const contractInstance = tokenInstance(address);
+
+      // 單獨測試每個合約調用
+      let dec, mint, interval, lastMint, balance;
+
+      try {
+        dec = await contractInstance.decimals();
+        console.log(`✅ 小數位數: ${dec}`);
+      } catch (error) {
+        console.error(`❌ 獲取小數位數失敗:`, error);
+        return { address, balance: "Error", mint: false, timeLeft: "0", error: `decimals: ${error.message}` };
+      }
+
+      try {
+        balance = await contractInstance.balanceOf(account);
+        console.log(`✅ 原始余額: ${balance.toString()}`);
+      } catch (error) {
+        console.error(`❌ 獲取余額失敗:`, error);
+        return { address, balance: "Error", mint: false, timeLeft: "0", error: `balanceOf: ${error.message}` };
+      }
+
+      try {
+        mint = await contractInstance.canMint(account);
+        console.log(`✅ 可鑄幣狀態: ${mint}`);
+      } catch (error) {
+        console.error(`❌ 獲取鑄幣狀態失敗:`, error);
+        mint = false; // 設置為默認值
+      }
+
+      try {
+        interval = await contractInstance.interval();
+        lastMint = await contractInstance.lastMintTime(account);
+        console.log(`✅ 間隔: ${interval}, 最後鑄幣時間: ${lastMint}`);
+      } catch (error) {
+        console.error(`❌ 獲取時間信息失敗:`, error);
+        interval = 3600; // 默認值
+        lastMint = 0; // 默認值
+      }
+
+      // 計算余額（考慮小數位數）
+      const formattedBalance = (Number(balance) / (10 ** Number(dec))).toFixed(2);
+      console.log(`💰 格式化余額: ${formattedBalance}`);
+
+      // 計算剩余時間
+      const currentTime = Math.floor(Date.now() / 1000);
+      const timeLeft = BigInt(interval) - (BigInt(currentTime) - BigInt(lastMint));
+      const timeLeftStr = timeLeft > 0 ? timeLeft.toString() : "0";
+
+      return {
+        address,
+        balance: formattedBalance,
+        mint,
+        timeLeft: timeLeftStr,
+      };
+    } catch (error) {
+      console.error(`❌ 獲取代幣數據失敗 ${address}:`, error);
+      return {
+        address,
+        balance: "Error",
+        mint: false,
+        timeLeft: "0",
+        error: error.message
+      };
+    }
+  };
+
+  useEffect(() => {
+    // Fetches data for all tokens in parallel.
+    const updateAllBalances = async () => {
+      if (!account) return;
+
+      try {
+        // Create an array of promises for all token data fetches
+        const promises = tokenNames.map(token => {
+          console.log("Fetching data for token 01:", token.name.toLowerCase());
+          const address = addresses[token.name.toLowerCase()];
+          console.log("Fetching address 01:", address);
+          console.log("Fetching address 02:", token.name.toLowerCase());
+          return getBalance(address);
+        });
+
+        // Await all promises to resolve
+        const results = await Promise.all(promises);
+
+        // Transform the array of results into an object keyed by address
+        const dataByAddress = results.reduce((acc, data) => {
+          if (data) {
+            acc[data.address] = data;
+          }
+          return acc;
+        }, {});
+
+        setTokenData(dataByAddress);
+      } catch (error) {
+        console.error("Failed to batch load token data:", error);
+      }
+    };
+
+    updateAllBalances(); // Initial fetch
+
+    const intervalId = setInterval(updateAllBalances, 10000); // Refresh every 10 seconds
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [account]);
+
+
+  // Toggles the loading state for a specific button.
+  const setButtonLoading = (address, key, isLoading) => {
+    setLoadingStates(prev => ({
+      ...prev,
+      [address]: { ...prev[address], [key]: isLoading }
+    }));
+  };
+
+  // Handles the token minting process for a specific token.
+  const onMint = async (tokenAddress) => {
+    setButtonLoading(tokenAddress, 'mint', true);
+    try {
+      const contractInstance = tokenInstance(tokenAddress);
+      const tx = await contractInstance.mintToken();
+      await tx.wait();
+      // Refresh data for the minted token for immediate feedback
+      const updatedData = await getBalance(tokenAddress);
+      setTokenData(prev => ({ ...prev, [tokenAddress]: updatedData }));
+    } catch (err) {
+      console.error("Minting failed:", err);
+    } finally {
+      setButtonLoading(tokenAddress, 'mint', false);
+    }
+  };
+
+  // Handles adding a token to Metamask.
+  const addToMetamask = async (address, imageURL) => {
+    setButtonLoading(address, 'add', true);
+    try {
+      const contractInstance = tokenInstance(address);
+      const [dec, symbol] = await Promise.all([
+        contractInstance.decimals(),
+        contractInstance.symbol()
+      ]);
+
+      await window.ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20",
+          options: { address, symbol, decimals: Number(dec), image: imageURL },
+        },
+      });
+    } catch (error) {
+      console.error("Failed to add token to Metamask:", error);
+    } finally {
+      setButtonLoading(address, 'add', false);
+    }
+  };
+
+  const renderRows = () => {
+    const { Row, Cell } = Table;
+
+    return tokenNames.map((token, index) => {
+      const tokenNameLower = token.name.toLowerCase();
+      console.log("Rendering token:", tokenNameLower);
+      const tokenAddress = addresses[tokenNameLower];
+      const data = tokenData[tokenAddress];
+      const isLoading = loadingStates[tokenAddress] || {};
+
+      const imgName = `/logos/${tokenNameLower}.svg`;
+      const imgURL = `https://raw.githubusercontent.com/papermoonio/passetHub-mintableERC20/main/mintableERC20-interface/public${imgName}`;
+      const expURL = `https://blockscout-passet-hub.parity-testnet.parity.io/token/${tokenAddress}`;
+
+      console.log("Data:", data);
+      console.log("balance:", data?.balance);
+      const balance = data?.balance || "N/A";
+      const mintEnabled = data?.mint || false;
+      const remainingTime = data?.timeLeft || 0;
+
+      return (
+        <Row key={index}>
+          <Cell><img src={imgName} style={{ width: 32, height: 32 }} alt={`${token.name} logo`} /></Cell>
+          <Cell>{token.name}</Cell>
+          <Cell>{token.symbol}</Cell>
+          <Cell><a href={expURL} target="_blank" rel="noopener noreferrer">{tokenAddress}</a></Cell>
+          <Cell>{balance}</Cell>
+          <Cell>
+            <Form onSubmit={() => onMint(tokenAddress)}>
+              <Button
+                type="submit"
+                loading={isLoading.mint}
+                disabled={isLoading.mint || !mintEnabled}
+                color="orange"
+                content={mintEnabled ? "Mint" : `${remainingTime}s`}
+              />
+            </Form>
+          </Cell>
+          <Cell>
+            <Form onSubmit={() => addToMetamask(tokenAddress, imgURL)}>
+              <Button
+                type="submit"
+                loading={isLoading.add}
+                disabled={isLoading.add}
+                color="orange"
+                content="Add"
+              />
+            </Form>
+          </Cell>
+        </Row>
+      );
+    });
+  };
+
+  const { Header, Row, HeaderCell, Body } = Table;
+
+  return (
+    <div>
+      <h3>Token Balance Information</h3>
+      <p>
+        Information displayed in the following table corresponds to your on-chain balance of each of the following ERC20 tokens on the Polkadot Hub TestNet! <br />
+        Users can mint 100 tokens every hour in each ERC20 token contract.
+      </p>
+      <Container>
+        <Table textAlign="center">
+          <Header>
+            <Row>
+              <HeaderCell>Logo</HeaderCell>
+              <HeaderCell>Token Name</HeaderCell>
+              <HeaderCell>Symbol</HeaderCell>
+              <HeaderCell>Address</HeaderCell>
+              <HeaderCell>Balance</HeaderCell>
+              <HeaderCell>Mint</HeaderCell>
+              <HeaderCell>Add to Metamask</HeaderCell>
+            </Row>
+          </Header>
+          <Body>{renderRows()}</Body>
+        </Table>
+      </Container>
+    </div>
+  );
+};
+
+export default DataFeed;
