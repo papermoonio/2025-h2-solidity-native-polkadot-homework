@@ -1,0 +1,26 @@
+{
+    "name": "lesson-5-uniswap-v2",
+    "version": "1.0.0",
+    "description": "Uniswap V2 Core implementation",
+    "main": "index.js",
+    "scripts": {
+        "test": "hardhat test",
+        "compile": "hardhat compile",
+        "node": "hardhat node"
+    },
+    "keywords": [
+        "solidity",
+        "uniswap",
+        "v2",
+        "dex",
+        "amm"
+    ],
+    "author": "",
+    "license": "MIT",
+    "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+        "hardhat": "^2.19.0",
+        "chai": "^4.3.10",
+        "ethers": "^6.9.0"
+    }
+}

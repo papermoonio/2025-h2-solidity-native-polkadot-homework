@@ -1,0 +1,21 @@
+const ethers = require("ethers");
+
+const web3 = () => {
+  if (typeof ethereum !== "undefined" && ethereum.chainId === "0x190f1b46") {
+    // We are in the browser and MetaMask is running
+    console.log("Using metamask provider");
+    return new ethers.providers.Web3Provider(ethereum);
+  } else {
+    console.log("Using metamask provider2");
+    // We are on the server *OR* the user is not running metamask
+    return new ethers.providers.StaticJsonRpcProvider(
+      "https://testnet-passet-hub-eth-rpc.polkadot.io",
+      {
+        chainId: 420420422,
+        name: "passet-hub",
+      }
+    );
+  }
+};
+
+export default web3;
