@@ -1,0 +1,25 @@
+{
+  "name": "lesson-2",
+  "version": "1.0.0",
+  "description": "利用Hardhat写一个ERC20合约，不使用其他的库。根据定义好的接口，写具体的实现。\r 对于每个接口，写测试用例，并在本地环境下完成测试。\r 提交整个hardhat的项目代码到 github https://github.com/papermoonio/2025-h2-solidity-native-polkadot-homework/tree/main/lesson-2",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@types/chai": "^4.3.20",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.19.1",
+    "chai": "^4.3.7",
+    "ethers": "^6.15.0",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^2.26.0",
+    "mocha": "^11.7.5",
+    "typescript": "~5.8.0"
+  }
+}
