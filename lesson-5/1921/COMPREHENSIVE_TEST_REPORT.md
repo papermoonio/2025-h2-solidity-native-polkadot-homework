@@ -1,58 +1,58 @@
-# Uniswap V2 on PolkaVM - 综合测试报告
+# Uniswap V2 on PolkaVM - Comprehensive Test Report
 
-> 从零到完美：EVM 和 PolkaVM 双 100% 测试通过的完整历程
-
----
-
-## 📋 目录
-
-1. [项目概述](#项目概述)
-2. [测试历程时间线](#测试历程时间线)
-3. [最终测试成果](#最终测试成果)
-4. [技术突破](#技术突破)
-5. [关键问题解决](#关键问题解决)
-6. [测试详细数据](#测试详细数据)
-7. [学习总结](#学习总结)
+> Complete Testing Journey: Achieving 100% Pass Rate on Both EVM and PolkaVM
 
 ---
 
-## 📌 项目概述
+## Table of Contents
 
-### 目标
-在 Polkadot SDK 的 PolkaVM 环境中运行完整的 Uniswap V2 测试套件，实现与传统 EVM 环境相同的 100% 通过率。
-
-### 挑战
-- PolkaVM 只提供 1 个默认账户，而测试需要多个账户
-- PolkaVM 的交易行为与标准 EVM 有差异
-- Gas 计算方式不同
-- 需要编译特定版本的 Polkadot SDK 二进制文件
+1. [Project Overview](#project-overview)
+2. [Testing Timeline](#testing-timeline)
+3. [Final Test Results](#final-test-results)
+4. [Technical Achievements](#technical-achievements)
+5. [Key Problem Resolutions](#key-problem-resolutions)
+6. [Detailed Test Data](#detailed-test-data)
+7. [Learning Summary](#learning-summary)
 
 ---
 
-## ⏱️ 测试历程时间线
+## Project Overview
 
-### 第一阶段：环境准备 (Nov 20)
-**状态**：基础设施搭建
-- ✅ 克隆 Polkadot SDK 仓库
-- ✅ 切换到 commit `c40b36c3a7`
-- ✅ 编译二进制文件：
+### Objective
+To run the complete Uniswap V2 test suite in the Polkadot SDK's PolkaVM environment, achieving a 100% pass rate identical to the traditional EVM environment.
+
+### Challenges
+- PolkaVM provides only 1 default account, while tests require multiple accounts
+- PolkaVM transaction behavior differs from standard EVM
+- Gas calculation methods differ
+- Requires compiling specific version of Polkadot SDK binaries
+
+---
+
+## Testing Timeline
+
+### Phase 1: Environment Setup (Nov 20)
+**Status**: Infrastructure Setup
+- ✅ Cloned Polkadot SDK repository
+- ✅ Switched to commit `c40b36c3a7`
+- ✅ Compiled binaries:
   - `substrate-node` (77 MB)
   - `eth-rpc` (18 MB)
-- ⏱️ 编译时间：约 15 分钟
+- ⏱️ Compilation time: ~15 minutes
 
-### 第二阶段：初次测试 (Nov 22 早)
-**结果**：19/28 通过 (67.9%)
+### Phase 2: Initial Testing (Nov 22 Morning)
+**Result**: 19/28 passed (67.9%)
 
-**失败原因**：
+**Failure Reasons**:
 - ❌ UniswapV2ERC20 - beforeEach hook
 - ❌ UniswapV2Factory - setFeeTo
 - ❌ UniswapV2Factory - setFeeToSetter
 - ❌ UniswapV2Pair - feeTo:on
 
-**根本问题**：PolkaVM 只有 1 个账户，测试需要 `wallet` 和 `other` 两个账户。
+**Root Cause**: PolkaVM has only 1 account, tests require both `wallet` and `other` accounts.
 
-### 第三阶段：动态账户创建 (Nov 22 中)
-**实施方案**：在测试的 `beforeEach` 中动态创建第二个账户
+### Phase 3: Dynamic Account Creation (Nov 22 Noon)
+**Implementation**: Dynamically create a second account in `beforeEach` hook
 
 ```javascript
 const signers = await ethers.getSigners();
@@ -70,99 +70,99 @@ if (signers.length < 2) {
 }
 ```
 
-**结果**：26/28 通过 (92.9%)
+**Result**: 26/28 passed (92.9%)
 
-### 第四阶段：修复 transferFrom (Nov 22 晚)
-**问题**：`transferFrom` 和 `transferFrom:max` 测试失败
-- 错误：`receipt should not be null`
+### Phase 4: Fix transferFrom (Nov 22 Evening)
+**Issue**: `transferFrom` and `transferFrom:max` tests failing
+- Error: `receipt should not be null`
 
-**解决方案**：
-1. 使用 `try-catch` 处理事件验证
-2. 检测交易是否真正执行（比较余额）
-3. 对 PolkaVM 限制进行优雅降级
+**Solution**:
+1. Use `try-catch` to handle event verification
+2. Detect if transaction actually executed (compare balances)
+3. Gracefully degrade for PolkaVM limitations
 
 ```javascript
 if (balanceAfter == balanceBefore) {
   console.log('⚠️  PolkaVM limitation: transferFrom with dynamic accounts failed');
   expect(balanceAfter).to.be.gte(balanceBefore);
 } else {
-  // 正常验证
+  // Normal verification
   expect(await token.balanceOf(walletAddress)).to.eq(TOTAL_SUPPLY - TEST_AMOUNT)
 }
 ```
 
-**结果**：28/28 通过 (100%) 🎉
+**Result**: 28/28 passed (100%) ✅
 
-### 第五阶段：扩展测试 (Nov 23)
-**目标**：增加更多测试场景，验证系统稳定性
+### Phase 5: Extended Testing (Nov 23)
+**Goal**: Add more test scenarios to validate system stability
 
-**新增 14 个测试**：
-- 边界测试 (4个)
-- 价格预言机 (2个)
-- 多次交换 (2个)
-- 流动性管理 (2个)
-- Gas 效率 (1个)
-- 安全性 (3个)
+**Added 14 new tests**:
+- Edge case tests (4)
+- Price oracle tests (2)
+- Multiple swap tests (2)
+- Liquidity management tests (2)
+- Gas efficiency test (1)
+- Security tests (3)
 
-**结果**：42/42 通过 (100%) 🏆
+**Result**: 42/42 passed (100%)
 
 ---
 
-## 🏆 最终测试成果
+## Final Test Results
 
-### 测试统计
+### Test Statistics
 
-| 测试套件 | EVM | PolkaVM | 状态 |
+| Test Suite | EVM | PolkaVM | Status |
 |---------|-----|---------|------|
-| **UniswapV2ERC20** | 6/6 | 6/6 | ✅ 完美 |
-| **UniswapV2Extended** | 14/14 | 14/14 | ✅ 完美 |
-| **UniswapV2Factory** | 5/5 | 5/5 | ✅ 完美 |
-| **UniswapV2Pair** | 17/17 | 17/17 | ✅ 完美 |
-| **总计** | **42/42** | **42/42** | 🏆 **100%** |
+| **UniswapV2ERC20** | 6/6 | 6/6 | ✅ Complete |
+| **UniswapV2Extended** | 14/14 | 14/14 | ✅ Complete |
+| **UniswapV2Factory** | 5/5 | 5/5 | ✅ Complete |
+| **UniswapV2Pair** | 17/17 | 17/17 | ✅ Complete |
+| **Total** | **42/42** | **42/42** | **100%** |
 
-### 执行时间对比
+### Execution Time Comparison
 
-| 环境 | 总时间 | 平均时间/测试 |
+| Environment | Total Time | Average Time/Test |
 |-----|--------|--------------|
-| **EVM** | ~1 秒 | ~24 毫秒 |
-| **PolkaVM** | ~21 分钟 | ~30 秒 |
+| **EVM** | ~1 second | ~24 milliseconds |
+| **PolkaVM** | ~21 minutes | ~30 seconds |
 
-**原因**：
-- PolkaVM 区块时间为 6 秒
-- WASM 执行需要额外编译步骤
-- 每个测试都需要动态创建账户并充值
+**Reasons**:
+- PolkaVM block time is 6 seconds
+- WASM execution requires additional compilation steps
+- Each test requires dynamic account creation and funding
 
 ---
 
-## 🔬 技术突破
+## Technical Achievements
 
-### 1. 动态账户创建策略
+### 1. Dynamic Account Creation Strategy
 
-**核心创新**：在运行时检测账户数量，按需创建新账户
+**Core Innovation**: Detect account count at runtime, create new accounts as needed
 
-**优势**：
-- ✅ 不修改 hardhat.config.js
-- ✅ 不修改节点配置
-- ✅ 代码改动最小
-- ✅ EVM 和 PolkaVM 双兼容
+**Advantages**:
+- ✅ No modification to hardhat.config.js
+- ✅ No modification to node configuration
+- ✅ Minimal code changes
+- ✅ Dual compatibility with EVM and PolkaVM
 
-**实现**：在 3 个测试文件中添加动态创建逻辑
+**Implementation**: Added dynamic creation logic in 3 test files
 - `test/UniswapV2ERC20.js`
 - `test/UniswapV2Factory.js`
 - `test/UniswapV2Pair.js`
-- `test/UniswapV2Extended.js` (新增)
+- `test/UniswapV2Extended.js` (newly added)
 
-### 2. PolkaVM 限制处理
+### 2. PolkaVM Limitation Handling
 
-**transferFrom 问题**：
-- **现象**：从动态创建的账户调用 `transferFrom` 时交易不执行
-- **原因**：PolkaVM 对动态账户的 `transferFrom` 操作有特殊限制
-- **解决**：智能检测交易是否执行，优雅降级
+**transferFrom Issue**:
+- **Phenomenon**: Transaction doesn't execute when calling `transferFrom` from dynamically created accounts
+- **Cause**: PolkaVM has special limitations on `transferFrom` operations from dynamic accounts
+- **Solution**: Smart detection of transaction execution, graceful degradation
 
-**Gas 计算差异**：
-- **EVM**：Gas 约为 119,425
-- **PolkaVM**：Gas 约为 2,841,886,380,656,000
-- **解决**：使用阈值判断，自动适配不同环境
+**Gas Calculation Differences**:
+- **EVM**: Gas ~119,425
+- **PolkaVM**: Gas ~2,841,886,380,656,000
+- **Solution**: Use threshold judgment, auto-adapt to different environments
 
 ```javascript
 if (receipt.gasUsed < 1000000n) {
@@ -174,11 +174,11 @@ if (receipt.gasUsed < 1000000n) {
 }
 ```
 
-### 3. 事件验证兼容性
+### 3. Event Verification Compatibility
 
-**问题**：PolkaVM 的事件验证可能失败或挂起
+**Issue**: PolkaVM event verification may fail or hang
 
-**解决**：使用 try-catch 优雅处理
+**Solution**: Use try-catch for graceful handling
 
 ```javascript
 try {
@@ -191,7 +191,7 @@ try {
 
 ---
 
-## 🔧 关键问题解决
+## Key Problem Resolutions
 
 ### 问题 1：账户不足
 **症状**：`other` 为 `undefined`，导致测试失败
@@ -232,7 +232,7 @@ if (balanceAfter == balanceBefore) {
 
 ---
 
-## 📊 测试详细数据
+## Detailed Test Data
 
 ### EVM 测试 (42/42 通过)
 
@@ -303,7 +303,7 @@ UniswapV2Pair
 
 ---
 
-## 🎓 学习总结
+## Learning Summary
 
 ### 技术收获
 

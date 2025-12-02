@@ -1,0 +1,3 @@
+name = "mintable-erc20-dapp"
+compatibility_date = "2024-11-27"
+pages_build_output_dir = "out"
