@@ -1,6 +1,9 @@
 
 ## 漏洞及攻擊方式的解釋說明
 
+### 測試 screencap
+![image] (https://github.com/MartinYeung5/2025-h2-solidity-native-polkadot-homework/blob/main/lesson-6/677/task6_screencap.png)
+
 ### 漏洞合約：VulnerableBank.sol
 * 這是一個存在重入漏洞的銀行合約。漏洞核心在於 withdraw() 函數的執行順序錯誤。
 
