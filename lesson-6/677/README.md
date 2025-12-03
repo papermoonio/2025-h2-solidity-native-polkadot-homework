@@ -2,8 +2,6 @@
 ## 漏洞及攻擊方式的解釋說明
 
 ### 測試 screencap
-![image] (https://github.com/MartinYeung5/2025-h2-solidity-native-polkadot-homework/blob/main/lesson-6/677/task6_screencap.png)
-
 ![](https://github.com/MartinYeung5/2025-h2-solidity-native-polkadot-homework/blob/main/lesson-6/677/task6_screencap.png)
 
 ### 漏洞合約：VulnerableBank.sol
