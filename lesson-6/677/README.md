@@ -178,7 +178,6 @@ function withdraw() external noReentrant {
 ### 開發安全建議
 1. 代碼層面
 * 始終遵循檢查-效果-交互模式
-* 使用成熟的庫：如 OpenZeppelin 的 ReentrancyGuard
 * 限制外部調用：儘量避免在關鍵操作中進行外部調用
 
 2. 測試層面
